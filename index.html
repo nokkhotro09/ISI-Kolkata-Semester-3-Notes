@@ -323,6 +323,14 @@
     margin-bottom: 16px;
     background: rgba(255,255,255,0.01);
     position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .upload-zone * {
+    pointer-events: none;
+  }
+  .upload-zone input[type="file"] {
+    pointer-events: auto;
   }
   .upload-zone:hover { border-color: var(--accent); color: var(--text); background: rgba(88,166,255,0.03); }
   .upload-zone:active { transform: scale(0.98); }
@@ -551,7 +559,7 @@
   <button class="tab" onclick="switchMain('networks')">Networks</button>
   <button class="tab" onclick="switchMain('macro')">Macro II</button>
   <button class="tab" onclick="switchMain('conflict')">Conflicts</button>
-  <button class="tab" onclick="switchMain('attendance')">Attendance</button>
+  <button class="tab" onclick="switchMain('attendance')"> Attendance</button>
 </div>
 
 <div class="content">
@@ -1133,14 +1141,16 @@
   // ===== FILE UPLOAD WITH DATE =====
   function triggerUpload(course, type) {
     const dateInput = document.getElementById(`${course}-${type}-date`);
-    if (!dateInput) { document.getElementById(`${course}-${type}-input`).click(); return; }
+    const fileInput = document.getElementById(`${course}-${type}-input`);
+    if (!fileInput) { console.error('File input not found:', course, type); return; }
+    if (!dateInput) { fileInput.click(); return; }
     if (!dateInput.value) {
       dateInput.focus(); dateInput.style.borderColor = 'var(--accent4)';
       dateInput.scrollIntoView({behavior:'smooth', block:'center'});
       setTimeout(() => dateInput.style.borderColor = '', 1500);
       return;
     }
-    document.getElementById(`${course}-${type}-input`).click();
+    fileInput.click();
   }
 
   async function handleUpload(course, type, input) {
