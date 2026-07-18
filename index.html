@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ISI Kolkata — Class Notes Hub</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <style>
   :root {
     --bg: #0d1117;
@@ -18,6 +19,7 @@
     --accent4: #f85149;
     --accent5: #d29922;
     --exam: #d29922;
+    --holiday: #bd93f9;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
@@ -49,14 +51,14 @@
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
     flex: 1;
-    min-width: 100px;
-    padding: 16px 14px;
+    min-width: 90px;
+    padding: 14px 10px;
     text-align: center;
     cursor: pointer;
     border: none;
     background: transparent;
     color: var(--muted);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 600;
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
@@ -148,14 +150,23 @@
     box-shadow: 0 0 0 1px var(--exam);
   }
   .cal-cell.exam-day .dnum { color: var(--exam); }
-  .exam-badge {
-    font-size: 0.55rem;
+  .cal-cell.holiday-day {
+    background: rgba(189,147,249,0.10);
+    border-color: var(--holiday);
+    box-shadow: 0 0 0 1px var(--holiday);
+  }
+  .cal-cell.holiday-day .dnum { color: var(--holiday); }
+  .exam-badge, .holiday-badge {
+    font-size: 0.5rem;
     font-weight: 700;
-    color: var(--exam);
     text-transform: uppercase;
     letter-spacing: 0.3px;
     margin-top: 1px;
+    text-align: center;
+    line-height: 1.1;
   }
+  .exam-badge { color: var(--exam); }
+  .holiday-badge { color: var(--holiday); }
 
   /* Legend */
   .legend {
@@ -201,19 +212,18 @@
   .detail-info { flex: 1; }
   .detail-name { font-weight: 600; color: #fff; font-size: 0.92rem; }
   .detail-time { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-  .exam-banner {
-    background: rgba(210,153,34,0.12);
-    border: 1px solid var(--exam);
+  .exam-banner, .holiday-banner {
     border-radius: 10px;
     padding: 12px 14px;
     margin-bottom: 12px;
-    color: var(--exam);
     font-weight: 600;
     font-size: 0.9rem;
     display: flex;
     align-items: center;
     gap: 8px;
   }
+  .exam-banner { background: rgba(210,153,34,0.12); border: 1px solid var(--exam); color: var(--exam); }
+  .holiday-banner { background: rgba(189,147,249,0.12); border: 1px solid var(--holiday); color: var(--holiday); }
 
   /* Course cards */
   .course-card {
@@ -272,20 +282,62 @@
     border-bottom-color: var(--accent);
   }
   .sec-content { padding: 18px 16px; animation: fadeIn 0.2s ease; }
+
+  /* Upload date row */
+  .upload-date-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .upload-date-row label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .upload-date-row input[type="date"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-size: 0.85rem;
+    outline: none;
+    font-family: inherit;
+  }
+  .upload-date-row input[type="date"]:focus { border-color: var(--accent); }
+  .upload-date-row .req { color: var(--accent4); margin-left: 2px; }
+
   .upload-zone {
     border: 2px dashed var(--border);
     border-radius: 12px;
-    padding: 32px 18px;
+    padding: 28px 18px;
     text-align: center;
     color: var(--muted);
     cursor: pointer;
     transition: all 0.2s;
     margin-bottom: 16px;
     background: rgba(255,255,255,0.01);
+    position: relative;
   }
   .upload-zone:hover { border-color: var(--accent); color: var(--text); background: rgba(88,166,255,0.03); }
   .upload-zone:active { transform: scale(0.98); }
   .upload-zone svg { margin-bottom: 10px; display: inline-block; }
+  .upload-zone.uploading { border-color: var(--accent3); color: var(--accent3); }
+  .upload-zone .spinner {
+    display: none;
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 8px;
+  }
+  .upload-zone.uploading .spinner { display: block; }
+  .upload-zone.uploading svg { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .file-list { list-style: none; padding: 0; margin: 0; }
   .file-item, .ref-item {
     display: flex;
@@ -303,10 +355,19 @@
   .file-item a:hover, .ref-item a:hover { text-decoration: underline; }
   .file-item .del, .ref-item .del { color: var(--accent4); cursor: pointer; font-size: 0.72rem; margin-left: 8px; white-space: nowrap; flex-shrink: 0; }
   .file-item .del:hover, .ref-item .del:hover { text-decoration: underline; }
+  .file-date {
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
   .empty-msg { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 24px 10px; }
   .ref-item a { color: var(--accent3); }
 
-  /* Add ref input */
+  /* Ref link inputs */
   .ref-input-group {
     display: flex;
     gap: 8px;
@@ -337,6 +398,154 @@
     -webkit-appearance: none;
   }
   .ref-input-group button:active { transform: scale(0.96); }
+  .divider {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    margin: 10px 0;
+    position: relative;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider::before { left: 0; }
+  .divider::after { right: 0; }
+
+  /* Attendance */
+  .attn-course-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  .attn-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .attn-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .attn-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0; }
+  .attn-pct {
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .attn-pct.good { color: var(--accent3); }
+  .attn-pct.bad { color: var(--accent4); }
+  .attn-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .attn-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  .attn-bar-fill.good { background: var(--accent3); }
+  .attn-bar-fill.bad { background: var(--accent4); }
+  .attn-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .attn-alert {
+    background: rgba(248,81,73,0.10);
+    border: 1px solid var(--accent4);
+    color: var(--accent4);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .attn-list {
+    padding: 12px 16px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .attn-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .attn-row:last-child { border-bottom: none; }
+  .attn-date-info { flex: 1; min-width: 0; }
+  .attn-date { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .attn-time { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
+  .attn-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .attn-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-appearance: none;
+    transition: all 0.15s;
+  }
+  .attn-btn.on {
+    background: var(--accent3);
+    color: #0d1117;
+    border-color: var(--accent3);
+  }
+  .attn-btn.off {
+    background: var(--accent4);
+    color: #fff;
+    border-color: var(--accent4);
+  }
+  .attn-btn:active { transform: scale(0.95); }
+  .attn-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .attn-summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .attn-summary-num {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .attn-summary-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
 
   /* Responsive */
   @media (max-width: 480px) {
@@ -345,15 +554,17 @@
     .cal-cell .cls-dot { width: 5px; height: 5px; }
     .header h1 { font-size: 1.15rem; }
     .course-title { font-size: 1rem; }
-    .tab { font-size: 0.72rem; padding: 14px 10px; min-width: 85px; }
+    .tab { font-size: 0.72rem; padding: 12px 8px; min-width: 80px; }
     .sec-tab { font-size: 0.72rem; padding: 12px 8px; }
+    .attn-btn { padding: 5px 9px; font-size: 0.68rem; }
   }
   @media (min-width: 768px) {
     .content { padding: 24px; }
     .cal-cell { min-height: 72px; }
-    .tab { min-width: 120px; padding: 16px 18px; font-size: 0.85rem; }
+    .tab { min-width: 110px; padding: 16px 14px; font-size: 0.82rem; }
   }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -368,6 +579,7 @@
   <button class="tab" onclick="switchMain('networks')">Networks</button>
   <button class="tab" onclick="switchMain('macro')">Macroeconomics II</button>
   <button class="tab" onclick="switchMain('conflict')">Conflicts</button>
+  <button class="tab" onclick="switchMain('attendance')">📊 Attendance</button>
 </div>
 
 <div class="content">
@@ -385,6 +597,7 @@
       <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div>Macroeconomics II</div>
       <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div>Economics of Conflict</div>
       <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div>Mid-Sem Exams</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#bd93f9"></div>Holiday</div>
     </div>
     <div id="day-detail">
       <h3 id="detail-date"></h3>
@@ -412,26 +625,49 @@
           <div class="ref-input-group">
             <input type="text" id="auction-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
             <input type="text" id="auction-ref-name" placeholder="Name (optional)" style="min-width:120px;">
-            <button onclick="addRef('auction')">Add</button>
+            <button onclick="addRef('auction')">Add Link</button>
           </div>
-          <ul class="file-list" id="auction-ref-list"></ul>
-          <div class="empty-msg" id="auction-ref-empty">No references yet. Add links above.</div>
+          <ul class="file-list" id="auction-ref-link-list"></ul>
+          <div class="divider">OR UPLOAD FILE</div>
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="auction-ref-file-date">
+          </div>
+          <div class="upload-zone" id="auction-ref-file-zone" onclick="triggerUpload('auction','ref-file')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
+          </div>
+          <input type="file" id="auction-ref-file-input" class="hidden" multiple onchange="handleUpload('auction','ref-file',this)">
+          <ul class="file-list" id="auction-ref-file-list"></ul>
+          <div class="empty-msg" id="auction-ref-file-empty">No reference files uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="auction-notes">
-          <div class="upload-zone" onclick="document.getElementById('auction-note-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="auction-note-date">
+          </div>
+          <div class="upload-zone" id="auction-note-zone" onclick="triggerUpload('auction','notes')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="auction-note-input" class="hidden" multiple onchange="handleUpload('auction','notes',this)">
           <ul class="file-list" id="auction-note-list"></ul>
           <div class="empty-msg" id="auction-note-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="auction-assign">
-          <div class="upload-zone" onclick="document.getElementById('auction-assign-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="auction-assign-date">
+          </div>
+          <div class="upload-zone" id="auction-assign-zone" onclick="triggerUpload('auction','assign')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="auction-assign-input" class="hidden" multiple onchange="handleUpload('auction','assign',this)">
           <ul class="file-list" id="auction-assign-list"></ul>
@@ -441,7 +677,7 @@
     </div>
   </div>
 
-  <!-- COURSE: Econ & Social Networks -->
+  <!-- COURSE: Networks -->
   <div id="view-networks" class="hidden">
     <div class="course-card">
       <div class="course-header" style="border-left:4px solid #a371f7;">
@@ -461,26 +697,49 @@
           <div class="ref-input-group">
             <input type="text" id="networks-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
             <input type="text" id="networks-ref-name" placeholder="Name (optional)" style="min-width:120px;">
-            <button onclick="addRef('networks')">Add</button>
+            <button onclick="addRef('networks')">Add Link</button>
           </div>
-          <ul class="file-list" id="networks-ref-list"></ul>
-          <div class="empty-msg" id="networks-ref-empty">No references yet. Add links above.</div>
+          <ul class="file-list" id="networks-ref-link-list"></ul>
+          <div class="divider">OR UPLOAD FILE</div>
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="networks-ref-file-date">
+          </div>
+          <div class="upload-zone" id="networks-ref-file-zone" onclick="triggerUpload('networks','ref-file')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
+          </div>
+          <input type="file" id="networks-ref-file-input" class="hidden" multiple onchange="handleUpload('networks','ref-file',this)">
+          <ul class="file-list" id="networks-ref-file-list"></ul>
+          <div class="empty-msg" id="networks-ref-file-empty">No reference files uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="networks-notes">
-          <div class="upload-zone" onclick="document.getElementById('networks-note-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="networks-note-date">
+          </div>
+          <div class="upload-zone" id="networks-note-zone" onclick="triggerUpload('networks','notes')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="networks-note-input" class="hidden" multiple onchange="handleUpload('networks','notes',this)">
           <ul class="file-list" id="networks-note-list"></ul>
           <div class="empty-msg" id="networks-note-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="networks-assign">
-          <div class="upload-zone" onclick="document.getElementById('networks-assign-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="networks-assign-date">
+          </div>
+          <div class="upload-zone" id="networks-assign-zone" onclick="triggerUpload('networks','assign')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="networks-assign-input" class="hidden" multiple onchange="handleUpload('networks','assign',this)">
           <ul class="file-list" id="networks-assign-list"></ul>
@@ -510,26 +769,49 @@
           <div class="ref-input-group">
             <input type="text" id="macro-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
             <input type="text" id="macro-ref-name" placeholder="Name (optional)" style="min-width:120px;">
-            <button onclick="addRef('macro')">Add</button>
+            <button onclick="addRef('macro')">Add Link</button>
           </div>
-          <ul class="file-list" id="macro-ref-list"></ul>
-          <div class="empty-msg" id="macro-ref-empty">No references yet. Add links above.</div>
+          <ul class="file-list" id="macro-ref-link-list"></ul>
+          <div class="divider">OR UPLOAD FILE</div>
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="macro-ref-file-date">
+          </div>
+          <div class="upload-zone" id="macro-ref-file-zone" onclick="triggerUpload('macro','ref-file')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
+          </div>
+          <input type="file" id="macro-ref-file-input" class="hidden" multiple onchange="handleUpload('macro','ref-file',this)">
+          <ul class="file-list" id="macro-ref-file-list"></ul>
+          <div class="empty-msg" id="macro-ref-file-empty">No reference files uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="macro-notes">
-          <div class="upload-zone" onclick="document.getElementById('macro-note-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="macro-note-date">
+          </div>
+          <div class="upload-zone" id="macro-note-zone" onclick="triggerUpload('macro','notes')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="macro-note-input" class="hidden" multiple onchange="handleUpload('macro','notes',this)">
           <ul class="file-list" id="macro-note-list"></ul>
           <div class="empty-msg" id="macro-note-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="macro-assign">
-          <div class="upload-zone" onclick="document.getElementById('macro-assign-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="macro-assign-date">
+          </div>
+          <div class="upload-zone" id="macro-assign-zone" onclick="triggerUpload('macro','assign')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="macro-assign-input" class="hidden" multiple onchange="handleUpload('macro','assign',this)">
           <ul class="file-list" id="macro-assign-list"></ul>
@@ -539,7 +821,7 @@
     </div>
   </div>
 
-  <!-- COURSE: Economics of Conflict -->
+  <!-- COURSE: Conflicts -->
   <div id="view-conflict" class="hidden">
     <div class="course-card">
       <div class="course-header" style="border-left:4px solid #f85149;">
@@ -559,26 +841,49 @@
           <div class="ref-input-group">
             <input type="text" id="conflict-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
             <input type="text" id="conflict-ref-name" placeholder="Name (optional)" style="min-width:120px;">
-            <button onclick="addRef('conflict')">Add</button>
+            <button onclick="addRef('conflict')">Add Link</button>
           </div>
-          <ul class="file-list" id="conflict-ref-list"></ul>
-          <div class="empty-msg" id="conflict-ref-empty">No references yet. Add links above.</div>
+          <ul class="file-list" id="conflict-ref-link-list"></ul>
+          <div class="divider">OR UPLOAD FILE</div>
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="conflict-ref-file-date">
+          </div>
+          <div class="upload-zone" id="conflict-ref-file-zone" onclick="triggerUpload('conflict','ref-file')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
+          </div>
+          <input type="file" id="conflict-ref-file-input" class="hidden" multiple onchange="handleUpload('conflict','ref-file',this)">
+          <ul class="file-list" id="conflict-ref-file-list"></ul>
+          <div class="empty-msg" id="conflict-ref-file-empty">No reference files uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="conflict-notes">
-          <div class="upload-zone" onclick="document.getElementById('conflict-note-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="conflict-note-date">
+          </div>
+          <div class="upload-zone" id="conflict-note-zone" onclick="triggerUpload('conflict','notes')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="conflict-note-input" class="hidden" multiple onchange="handleUpload('conflict','notes',this)">
           <ul class="file-list" id="conflict-note-list"></ul>
           <div class="empty-msg" id="conflict-note-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="conflict-assign">
-          <div class="upload-zone" onclick="document.getElementById('conflict-assign-input').click()">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="conflict-assign-date">
+          </div>
+          <div class="upload-zone" id="conflict-assign-zone" onclick="triggerUpload('conflict','assign')">
+            <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
-            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
           <input type="file" id="conflict-assign-input" class="hidden" multiple onchange="handleUpload('conflict','assign',this)">
           <ul class="file-list" id="conflict-assign-list"></ul>
@@ -587,21 +892,62 @@
       </div>
     </div>
   </div>
+
+  <!-- ATTENDANCE -->
+  <div id="view-attendance" class="hidden">
+    <div id="attendance-container"></div>
+  </div>
 </div>
 
 <script>
+  // ===== SUPABASE CONFIG =====
+  const SUPABASE_URL = 'https://qgtzderqoqdbaparvpty.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndHpkZXJxb3FkYmFwYXJ2cHR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0MDM0MTQsImV4cCI6MjA5OTk3OTQxNH0.QcNbmUeB8Ntd_xg3IinWJBAK-FLpgIUws6-UpaMwRhU';
+  const BUCKET_NAME = 'course-files';
+  let supabase;
+
+  function initSupabase() {
+    try {
+      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase initialized');
+      } else if (typeof supabaseJs !== 'undefined' && supabaseJs.createClient) {
+        supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase initialized (alt)');
+      }
+    } catch(e) { console.error('Supabase init error:', e); }
+  }
+  initSupabase();
+  setTimeout(initSupabase, 1500);
+
   // ===== SEMESTER DATA =====
-  const SEM_START = new Date(2026, 6, 20); // July 20, 2026
-  const SEM_END   = new Date(2026, 10, 6); // Nov 6, 2026
-  const MIDSEM_START = new Date(2026, 8, 7);  // Sept 7, 2026
-  const MIDSEM_END   = new Date(2026, 8, 11); // Sept 11, 2026
+  const SEM_START = new Date(2026, 6, 20);
+  const SEM_END   = new Date(2026, 10, 6);
+  const MIDSEM_START = new Date(2026, 8, 7);
+  const MIDSEM_END   = new Date(2026, 8, 11);
+
+  const HOLIDAYS = [
+    { start: '2026-08-26', end: '2026-08-26', name: 'Milad un-Nabi and Onam' },
+    { start: '2026-10-02', end: '2026-10-02', name: 'Gandhi Jayanti' },
+    { start: '2026-11-24', end: '2026-11-24', name: 'Guru Nanak Jayanti' },
+    { start: '2026-11-09', end: '2026-11-13', name: 'Study Leave' },
+    { start: '2026-10-17', end: '2026-10-25', name: 'Durga Puja Vacation' }
+  ];
 
   const COURSES = {
-    auction:  { name: 'Auction Theory', color: '#58a6ff', days: [1,3], time: '9:20–11:05' },
-    networks: { name: 'Econ & Social Networks', color: '#a371f7', days: [1,3], time: '11:10–12:55' },
-    macro:    { name: 'Macroeconomics II', color: '#3fb950', days: [1,2], time: 'Mon 16:05–17:50, Tue 14:15–16:00' },
-    conflict: { name: 'Economics of Conflict', color: '#f85149', days: [2,5], time: '16:05–17:50' }
+    auction:  { key:'auction', name: 'Auction Theory', color: '#58a6ff', days: [1,3], time: '9:20–11:05', prof: 'Prof. Priyadarshi Banerjee' },
+    networks: { key:'networks', name: 'Economic and Social Networks', color: '#a371f7', days: [1,3], time: '11:10–12:55', prof: 'Prof. Anuj Bhowmik' },
+    macro:    { key:'macro', name: 'Macroeconomics II', color: '#3fb950', days: [1,2], time: 'Mon 16:05–17:50 / Tue 14:15–16:00', prof: 'Prof. Brati Sankar Chakraborty & Kumarjit Mandal' },
+    conflict: { key:'conflict', name: 'Economics of Conflict', color: '#f85149', days: [2,5], time: '16:05–17:50', prof: 'Prof. Indraneel Dasgupta' }
   };
+
+  const FOLDER_MAP = {
+    'auction': { 'ref-file': 'auction/refs', 'notes': 'auction/notes', 'assign': 'auction/assign' },
+    'networks': { 'ref-file': 'networks/refs', 'notes': 'networks/notes', 'assign': 'networks/assign' },
+    'macro': { 'ref-file': 'macro/refs', 'notes': 'macro/notes', 'assign': 'macro/assign' },
+    'conflict': { 'ref-file': 'conflict/refs', 'notes': 'conflict/notes', 'assign': 'conflict/assign' }
+  };
+
   let currentMonth = new Date().getMonth();
   let currentYear = new Date().getFullYear();
   const today = new Date();
@@ -610,16 +956,23 @@
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     return d >= MIDSEM_START && d <= MIDSEM_END;
   }
+  function getHoliday(date) {
+    const ds = date.toISOString().split('T')[0];
+    for (const h of HOLIDAYS) { if (ds >= h.start && ds <= h.end) return h; }
+    return null;
+  }
 
   // ===== NAVIGATION =====
   function switchMain(view) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
-    ['calendar','auction','networks','macro','conflict'].forEach(v => {
+    ['calendar','auction','networks','macro','conflict','attendance'].forEach(v => {
       document.getElementById('view-' + v).classList.add('hidden');
     });
     document.getElementById('view-' + view).classList.remove('hidden');
     window.scrollTo({top:0,behavior:'smooth'});
+    if (view === 'attendance') renderAttendance();
+    if (['auction','networks','macro','conflict'].includes(view)) loadCourseFiles(view);
   }
   function switchSec(course, sec) {
     const tabs = event.target.parentElement.querySelectorAll('.sec-tab');
@@ -631,12 +984,81 @@
     document.getElementById(course + '-' + sec).classList.remove('hidden');
   }
 
+  // ===== SUPABASE FILE OPERATIONS =====
+  async function uploadToSupabase(file, folder, customName) {
+    if (!supabase) { alert('Storage not ready. Please wait a moment and try again.'); return null; }
+    const fileName = customName || file.name;
+    const filePath = folder + '/' + Date.now() + '_' + fileName;
+    try {
+      const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file, { cacheControl: '3600', upsert: false });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+      return { path: filePath, url: urlData.publicUrl, name: fileName };
+    } catch (err) {
+      console.error('Upload error:', err);
+      alert('Upload failed: ' + err.message);
+      return null;
+    }
+  }
+  async function deleteFromSupabase(filePath) {
+    if (!supabase) return false;
+    try {
+      const { error } = await supabase.storage.from(BUCKET_NAME).remove([filePath]);
+      if (error) throw error;
+      return true;
+    } catch (err) { console.error('Delete error:', err); return false; }
+  }
+  async function listFiles(folder) {
+    if (!supabase) return [];
+    try {
+      const { data, error } = await supabase.storage.from(BUCKET_NAME).list(folder, { limit: 100 });
+      if (error) throw error;
+      return data || [];
+    } catch (err) { console.error('List error:', err); return []; }
+  }
+
+  async function loadCourseFiles(course) {
+    if (!supabase) return;
+    const folders = ['ref-file', 'notes', 'assign'];
+    for (const type of folders) {
+      const folder = FOLDER_MAP[course][type];
+      const listId = `${course}-${type === 'ref-file' ? 'ref-file' : type}-list`;
+      const list = document.getElementById(listId);
+      if (!list) continue;
+      list.innerHTML = '';
+      const files = await listFiles(folder);
+      if (files.length === 0) { checkEmpty(course, type === 'ref-file' ? 'ref-file' : type); continue; }
+      files.forEach(file => {
+        if (file.name === '.emptyFolderPlaceholder') return;
+        const filePath = folder + '/' + file.name;
+        const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+        const url = urlData.publicUrl;
+        const origName = file.name.replace(/^\d+_/, '');
+        const dateStr = file.created_at ? new Date(file.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
+        const li = document.createElement('li');
+        li.className = 'file-item';
+        li.dataset.path = filePath;
+        li.innerHTML = `<span>📄 ${origName}</span><div style="display:flex;align-items:center;gap:8px;">${dateStr ? `<span class="file-date">${dateStr}</span>` : ''}<a href="${url}" target="_blank" download>Download</a><span class="del" onclick="deleteFile('${course}','${type}','${filePath}',this)">Remove</span></div>`;
+        list.appendChild(li);
+      });
+      checkEmpty(course, type === 'ref-file' ? 'ref-file' : type);
+    }
+  }
+
+  async function deleteFile(course, type, filePath, el) {
+    if (!confirm('Delete this file?')) return;
+    const success = await deleteFromSupabase(filePath);
+    if (success) { el.closest('li').remove(); checkEmpty(course, type === 'ref-file' ? 'ref-file' : type); }
+    else { alert('Failed to delete file'); }
+  }
+
   // ===== CALENDAR =====
   function getClassesForDate(d) {
     const dow = d.getDay();
     const result = [];
     if (d < SEM_START || d > SEM_END) return result;
-    if (isMidSem(d)) return result; // No classes during mid-sem
+    if (isMidSem(d)) return result;
+    if (getHoliday(d)) return result;
     if (dow === 1) {
       result.push({...COURSES.auction, time: '9:20–11:05'});
       result.push({...COURSES.networks, time: '11:10–12:55'});
@@ -660,97 +1082,58 @@
     const grid = document.getElementById('cal-grid');
     grid.innerHTML = '';
     const labels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    labels.forEach(l => {
-      const el = document.createElement('div');
-      el.className = 'cal-day-label';
-      el.textContent = l;
-      grid.appendChild(el);
-    });
-
+    labels.forEach(l => { const el = document.createElement('div'); el.className = 'cal-day-label'; el.textContent = l; grid.appendChild(el); });
     const first = new Date(currentYear, currentMonth, 1);
     const startDay = first.getDay();
     const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
     document.getElementById('cal-month-year').textContent = first.toLocaleDateString('en-US', {month:'long', year:'numeric'});
-
     const prevDays = new Date(currentYear, currentMonth, 0).getDate();
     for (let i = startDay - 1; i >= 0; i--) {
-      const cell = document.createElement('div');
-      cell.className = 'cal-cell out';
-      cell.innerHTML = `<span class="dnum">${prevDays - i}</span>`;
-      grid.appendChild(cell);
+      const cell = document.createElement('div'); cell.className = 'cal-cell out'; cell.innerHTML = `<span class="dnum">${prevDays - i}</span>`; grid.appendChild(cell);
     }
-
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(currentYear, currentMonth, d);
-      const cell = document.createElement('div');
-      cell.className = 'cal-cell';
+      const cell = document.createElement('div'); cell.className = 'cal-cell';
       if (date.toDateString() === today.toDateString()) cell.classList.add('today');
-
       const midsem = isMidSem(date);
-      if (midsem) {
-        cell.classList.add('exam-day');
-        cell.innerHTML = `<span class="dnum">${d}</span><div class="exam-badge">MID-SEM</div>`;
-        cell.onclick = () => showExamDetail(date);
-        grid.appendChild(cell);
-        continue;
-      }
-
-      const classes = getClassesForDate(date);
-      let dots = '';
-      classes.forEach(c => {
-        dots += `<div class="cls-dot" style="background:${c.color}"></div>`;
-      });
+      if (midsem) { cell.classList.add('exam-day'); cell.innerHTML = `<span class="dnum">${d}</span><div class="exam-badge">MID-SEM</div>`; cell.onclick = () => showExamDetail(date); grid.appendChild(cell); continue; }
+      const hol = getHoliday(date);
+      if (hol) { cell.classList.add('holiday-day'); const short = hol.name.length > 10 ? hol.name.split(' ').map(w=>w[0]).join('').toUpperCase() : hol.name; cell.innerHTML = `<span class="dnum">${d}</span><div class="holiday-badge">${short}</div>`; cell.onclick = () => showHolidayDetail(date, hol); grid.appendChild(cell); continue; }
+      const classes = getClassesForDate(date); let dots = '';
+      classes.forEach(c => { dots += `<div class="cls-dot" style="background:${c.color}"></div>`; });
       cell.innerHTML = `<span class="dnum">${d}</span><div class="cls-dots">${dots}</div>`;
-      if (classes.length > 0) {
-        cell.classList.add('has-class');
-        cell.onclick = () => showDayDetail(date, classes);
-      }
+      if (classes.length > 0) { cell.classList.add('has-class'); cell.onclick = () => showDayDetail(date, classes); }
       grid.appendChild(cell);
     }
-
     const totalCells = startDay + daysInMonth;
     const rem = (7 - (totalCells % 7)) % 7;
-    for (let i = 1; i <= rem; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cal-cell out';
-      cell.innerHTML = `<span class="dnum">${i}</span>`;
-      grid.appendChild(cell);
-    }
+    for (let i = 1; i <= rem; i++) { const cell = document.createElement('div'); cell.className = 'cal-cell out'; cell.innerHTML = `<span class="dnum">${i}</span>`; grid.appendChild(cell); }
   }
-
   function changeMonth(delta) {
     currentMonth += delta;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar();
-    document.getElementById('day-detail').style.display = 'none';
+    renderCalendar(); document.getElementById('day-detail').style.display = 'none';
   }
-
   function showDayDetail(date, classes) {
     const detail = document.getElementById('day-detail');
     document.getElementById('detail-date').textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
-    const container = document.getElementById('detail-classes');
-    container.innerHTML = classes.map(c => `
-      <div class="detail-class-row">
-        <div class="detail-dot" style="background:${c.color};"></div>
-        <div class="detail-info">
-          <div class="detail-name">${c.name}</div>
-          <div class="detail-time">${c.time}</div>
-        </div>
-      </div>
+    document.getElementById('detail-classes').innerHTML = classes.map(c => `
+      <div class="detail-class-row"><div class="detail-dot" style="background:${c.color};"></div><div class="detail-info"><div class="detail-name">${c.name}</div><div class="detail-time">${c.time}</div></div></div>
     `).join('');
-    detail.style.display = 'block';
-    detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+    detail.style.display = 'block'; detail.scrollIntoView({behavior:'smooth', block:'nearest'});
   }
-
   function showExamDetail(date) {
     const detail = document.getElementById('day-detail');
     document.getElementById('detail-date').textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
-    document.getElementById('detail-classes').innerHTML = `
-      <div class="exam-banner">📝 Mid-Semester Examination Week — No regular classes</div>
-    `;
-    detail.style.display = 'block';
-    detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+    document.getElementById('detail-classes').innerHTML = `<div class="exam-banner">📝 Mid-Semester Examination Week — No regular classes</div>`;
+    detail.style.display = 'block'; detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+  function showHolidayDetail(date, hol) {
+    const detail = document.getElementById('day-detail');
+    document.getElementById('detail-date').textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    document.getElementById('detail-classes').innerHTML = `<div class="holiday-banner">🏖️ ${hol.name} — Holiday / No classes</div>`;
+    detail.style.display = 'block'; detail.scrollIntoView({behavior:'smooth', block:'nearest'});
   }
 
   // ===== REFERENCES =====
@@ -759,30 +1142,52 @@
     const name = document.getElementById(`${course}-ref-name`).value.trim();
     if (!url) return;
     const displayName = name || url;
-    const list = document.getElementById(`${course}-ref-list`);
+    const list = document.getElementById(`${course}-ref-link-list`);
     const li = document.createElement('li');
     li.className = 'ref-item';
-    li.innerHTML = `<a href="${url}" target="_blank" rel="noopener">🔗 ${displayName}</a><span class="del" onclick="this.parentElement.remove(); checkEmpty('${course}','ref');">Remove</span>`;
+    li.innerHTML = `<a href="${url}" target="_blank" rel="noopener">🔗 ${displayName}</a><span class="del" onclick="this.parentElement.remove()">Remove</span>`;
     list.appendChild(li);
     document.getElementById(`${course}-ref-url`).value = '';
     document.getElementById(`${course}-ref-name`).value = '';
-    checkEmpty(course, 'ref');
   }
 
-  // ===== FILE UPLOAD =====
-  function handleUpload(course, type, input) {
+  // ===== FILE UPLOAD WITH DATE =====
+  function triggerUpload(course, type) {
+    const dateInput = document.getElementById(`${course}-${type}-date`);
+    if (!dateInput) { document.getElementById(`${course}-${type}-input`).click(); return; }
+    if (!dateInput.value) {
+      dateInput.focus(); dateInput.style.borderColor = 'var(--accent4)';
+      dateInput.scrollIntoView({behavior:'smooth', block:'center'});
+      setTimeout(() => dateInput.style.borderColor = '', 1500);
+      return;
+    }
+    document.getElementById(`${course}-${type}-input`).click();
+  }
+
+  async function handleUpload(course, type, input) {
     const files = Array.from(input.files);
-    const listId = `${course}-${type === 'notes' ? 'note' : 'assign'}-list`;
+    const dateInput = document.getElementById(`${course}-${type}-date`);
+    const dateVal = dateInput ? dateInput.value : '';
+    if (!dateVal) { alert('Please select a date first'); input.value = ''; return; }
+    const dateStr = new Date(dateVal).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    const folder = FOLDER_MAP[course][type];
+    const listId = `${course}-${type}-list`;
     const list = document.getElementById(listId);
-    files.forEach(file => {
+    const zone = document.getElementById(`${course}-${type}-zone`);
+    if (zone) zone.classList.add('uploading');
+
+    for (const file of files) {
+      const result = await uploadToSupabase(file, folder, file.name);
+      if (!result) continue;
       const li = document.createElement('li');
       li.className = 'file-item';
-      const url = URL.createObjectURL(file);
-      li.innerHTML = `<span>📄 ${file.name}</span><div><a href="${url}" target="_blank" download>Download</a><span class="del" onclick="this.parentElement.parentElement.remove(); checkEmpty('${course}','${type === 'notes' ? 'note' : 'assign'}');">Remove</span></div>`;
+      li.dataset.path = result.path;
+      li.innerHTML = `<span>📄 ${result.name}</span><div style="display:flex;align-items:center;gap:8px;"><span class="file-date">${dateStr}</span><a href="${result.url}" target="_blank" download>Download</a><span class="del" onclick="deleteFile('${course}','${type}','${result.path}',this)">Remove</span></div>`;
       list.appendChild(li);
-    });
+    }
+    if (zone) zone.classList.remove('uploading');
     input.value = '';
-    checkEmpty(course, type === 'notes' ? 'note' : 'assign');
+    checkEmpty(course, type);
   }
 
   function checkEmpty(course, type) {
@@ -790,6 +1195,55 @@
     const empty = document.getElementById(`${course}-${type}-empty`);
     if (!list || !empty) return;
     empty.style.display = list.children.length === 0 ? 'block' : 'none';
+  }
+
+  // ===== ATTENDANCE =====
+  function loadAttendance() {
+    try { return JSON.parse(localStorage.getItem('isiAttendance') || '{}'); } catch(e) { return {}; }
+  }
+  function saveAttendance(data) { localStorage.setItem('isiAttendance', JSON.stringify(data)); }
+  function generateClassDates(courseKey) {
+    const course = COURSES[courseKey];
+    const dates = [];
+    let d = new Date(SEM_START);
+    while (d <= SEM_END) {
+      if (course.days.includes(d.getDay()) && !isMidSem(d) && !getHoliday(d)) dates.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+    }
+    return dates;
+  }
+  function formatDateShort(d) { return d.toLocaleDateString('en-US', {month:'short', day:'numeric', weekday:'short'}); }
+
+  function renderAttendance() {
+    const container = document.getElementById('attendance-container');
+    const data = loadAttendance();
+    let html = '';
+    Object.keys(COURSES).forEach(key => {
+      const course = COURSES[key];
+      const dates = generateClassDates(key);
+      const rec = data[key] || {};
+      let attended = 0, missed = 0;
+      dates.forEach(d => { const ds = d.toISOString().split('T')[0]; if (rec[ds] === true) attended++; else if (rec[ds] === false) missed++; });
+      const total = dates.length;
+      const pct = total > 0 ? Math.round((attended / total) * 100) : 0;
+      const isGood = pct >= 75;
+      html += `<div class="attn-course-card"><div class="attn-header" style="border-left:4px solid ${course.color};"><div class="attn-title-row"><div class="attn-title">${course.name}</div><div class="attn-pct ${isGood ? 'good' : 'bad'}">${pct}%</div></div><div class="attn-bar-bg"><div class="attn-bar-fill ${isGood ? 'good' : 'bad'}" style="width:${pct}%"></div></div><div class="attn-stats"><span>✅ ${attended} attended</span><span>❌ ${missed} missed</span><span>📊 ${total} total</span></div>${!isGood && total > 0 ? `<div class="attn-alert">⚠️ Below 75% — need ${Math.ceil(0.75*total) - attended} more classes</div>` : ''}</div><div class="attn-list">`;
+      dates.forEach(d => {
+        const ds = d.toISOString().split('T')[0];
+        const status = rec[ds];
+        const dateLabel = formatDateShort(d);
+        html += `<div class="attn-row"><div class="attn-date-info"><div class="attn-date">${dateLabel}</div><div class="attn-time">${course.time}</div></div><div class="attn-actions"><button class="attn-btn ${status === true ? 'on' : ''}" onclick="markAttn('${key}','${ds}',true)">✓</button><button class="attn-btn ${status === false ? 'off' : ''}" onclick="markAttn('${key}','${ds}',false)">✕</button></div></div>`;
+      });
+      html += `</div></div>`;
+    });
+    container.innerHTML = html || '<div class="empty-msg">No attendance data yet.</div>';
+  }
+  function markAttn(course, date, status) {
+    const data = loadAttendance();
+    if (!data[course]) data[course] = {};
+    data[course][date] = status;
+    saveAttendance(data);
+    renderAttendance();
   }
 
   // Allow Enter key in ref inputs
