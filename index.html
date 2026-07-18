@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ISI Kolkata — Class Notes Hub</title>
+<title>📚 ISI Kolkata MSQE@Sem-3</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <style>
@@ -47,6 +47,7 @@
     z-index: 100;
     scrollbar-width: none;
     padding: 0 4px;
+    isolation: isolate;
   }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
@@ -70,8 +71,10 @@
     color: var(--accent);
     border-bottom-color: var(--accent);
     background: rgba(88,166,255,0.08);
+    position: relative;
+    z-index: 2;
   }
-  .tab:hover { color: var(--text); }
+  .tab:hover { color: var(--text); position: relative; z-index: 1; }
   .content { padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 40px; }
   .hidden { display: none !important; }
 
@@ -416,73 +419,6 @@
   .divider::before { left: 0; }
   .divider::after { right: 0; }
 
-  /* Attendance */
-  .attn-course-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    margin-bottom: 18px;
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-  }
-  .attn-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-  .attn-title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .attn-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0; }
-  .attn-pct {
-    font-size: 1.3rem;
-    font-weight: 700;
-  }
-  .attn-pct.good { color: var(--accent3); }
-  .attn-pct.bad { color: var(--accent4); }
-  .attn-bar-bg {
-    width: 100%;
-    height: 8px;
-    background: var(--bg);
-    border-radius: 4px;
-    margin-top: 10px;
-    overflow: hidden;
-  }
-  .attn-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.4s ease;
-  }
-  .attn-bar-fill.good { background: var(--accent3); }
-  .attn-bar-fill.bad { background: var(--accent4); }
-  .attn-stats {
-    display: flex;
-    gap: 16px;
-    margin-top: 8px;
-    font-size: 0.78rem;
-    color: var(--muted);
-  }
-  .attn-alert {
-    background: rgba(248,81,73,0.10);
-    border: 1px solid var(--accent4);
-    color: var(--accent4);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-top: 10px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .attn-list {
-    padding: 12px 16px;
-    max-height: 320px;
-    overflow-y: auto;
-  }
   .attn-row {
     display: flex;
     align-items: center;
@@ -497,11 +433,13 @@
   .attn-time { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
   .attn-actions {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .attn-btn {
-    padding: 6px 12px;
+    padding: 6px 10px;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: transparent;
@@ -511,6 +449,7 @@
     cursor: pointer;
     -webkit-appearance: none;
     transition: all 0.15s;
+    min-width: 36px;
   }
   .attn-btn.on {
     background: var(--accent3);
@@ -523,9 +462,18 @@
     border-color: var(--accent4);
   }
   .attn-btn:active { transform: scale(0.95); }
+  .attn-btn-group-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 2px;
+  }
   .attn-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     margin-bottom: 20px;
   }
@@ -546,7 +494,31 @@
     color: var(--muted);
     margin-top: 4px;
   }
-
+  .attn-export-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .attn-export-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    -webkit-appearance: none;
+    flex: 1;
+    min-width: 140px;
+    text-align: center;
+  }
+  .attn-export-btn:hover { border-color: var(--accent); }
+  .attn-export-btn input[type="file"] { display: none; }
+  @media (min-width: 768px) {
+    .attn-summary { grid-template-columns: repeat(4, 1fr); }
+  }
   /* Responsive */
   @media (max-width: 480px) {
     .cal-cell { min-height: 44px; font-size: 0.65rem; padding: 3px 2px; }
@@ -895,6 +867,13 @@
 
   <!-- ATTENDANCE -->
   <div id="view-attendance" class="hidden">
+    <div class="attn-export-row">
+      <button class="attn-export-btn" onclick="exportAttendance()">💾 Export Data</button>
+      <label class="attn-export-btn" style="display:flex;align-items:center;justify-content:center;">
+        📁 Import Data
+        <input type="file" accept=".json" onchange="importAttendance(this.files[0])">
+      </label>
+    </div>
     <div id="attendance-container"></div>
   </div>
 </div>
@@ -1199,9 +1178,32 @@
 
   // ===== ATTENDANCE =====
   function loadAttendance() {
+    try { return JSON.parse(localStorage.getItem('isiAttendanceV2') || '{}'); } catch(e) { return {}; }
+  }
+  function saveAttendance(data) { localStorage.setItem('isiAttendanceV2', JSON.stringify(data)); }
+
+  function loadAttendanceLegacy() {
     try { return JSON.parse(localStorage.getItem('isiAttendance') || '{}'); } catch(e) { return {}; }
   }
-  function saveAttendance(data) { localStorage.setItem('isiAttendance', JSON.stringify(data)); }
+
+  // Migrate old data if exists
+  function migrateAttendance() {
+    const old = loadAttendanceLegacy();
+    if (Object.keys(old).length === 0) return;
+    const current = loadAttendance();
+    let migrated = false;
+    Object.keys(old).forEach(course => {
+      if (!current[course]) current[course] = {};
+      Object.keys(old[course]).forEach(date => {
+        if (typeof old[course][date] === 'boolean' && !current[course][date]) {
+          current[course][date] = { held: true, present: old[course][date] };
+          migrated = true;
+        }
+      });
+    });
+    if (migrated) saveAttendance(current);
+  }
+
   function generateClassDates(courseKey) {
     const course = COURSES[courseKey];
     const dates = [];
@@ -1215,35 +1217,117 @@
   function formatDateShort(d) { return d.toLocaleDateString('en-US', {month:'short', day:'numeric', weekday:'short'}); }
 
   function renderAttendance() {
+    migrateAttendance();
     const container = document.getElementById('attendance-container');
     const data = loadAttendance();
-    let html = '';
+    let html = '<div class="attn-summary"><div class="attn-summary-card"><div class="attn-summary-num" id="total-held">-</div><div class="attn-summary-label">Total Classes Held</div></div><div class="attn-summary-card"><div class="attn-summary-num" id="total-present">-</div><div class="attn-summary-label">Classes Attended</div></div><div class="attn-summary-card"><div class="attn-summary-num" id="total-absent">-</div><div class="attn-summary-label">Classes Missed</div></div><div class="attn-summary-card"><div class="attn-summary-num" id="overall-pct">-</div><div class="attn-summary-label">Overall %</div></div></div>';
+
+    let overallHeld = 0, overallPresent = 0;
+
     Object.keys(COURSES).forEach(key => {
       const course = COURSES[key];
       const dates = generateClassDates(key);
       const rec = data[key] || {};
-      let attended = 0, missed = 0;
-      dates.forEach(d => { const ds = d.toISOString().split('T')[0]; if (rec[ds] === true) attended++; else if (rec[ds] === false) missed++; });
-      const total = dates.length;
-      const pct = total > 0 ? Math.round((attended / total) * 100) : 0;
-      const isGood = pct >= 75;
-      html += `<div class="attn-course-card"><div class="attn-header" style="border-left:4px solid ${course.color};"><div class="attn-title-row"><div class="attn-title">${course.name}</div><div class="attn-pct ${isGood ? 'good' : 'bad'}">${pct}%</div></div><div class="attn-bar-bg"><div class="attn-bar-fill ${isGood ? 'good' : 'bad'}" style="width:${pct}%"></div></div><div class="attn-stats"><span>✅ ${attended} attended</span><span>❌ ${missed} missed</span><span>📊 ${total} total</span></div>${!isGood && total > 0 ? `<div class="attn-alert">⚠️ Below 75% — need ${Math.ceil(0.75*total) - attended} more classes</div>` : ''}</div><div class="attn-list">`;
+      let held = 0, present = 0, absent = 0, notMarked = 0;
       dates.forEach(d => {
         const ds = d.toISOString().split('T')[0];
-        const status = rec[ds];
+        const entry = rec[ds];
+        if (entry && entry.held === true) {
+          held++;
+          if (entry.present === true) present++;
+          else if (entry.present === false) absent++;
+        } else if (!entry || entry.held === undefined) {
+          notMarked++;
+        }
+      });
+      const pct = held > 0 ? Math.round((present / held) * 100) : 0;
+      const isGood = pct >= 75;
+      overallHeld += held;
+      overallPresent += present;
+
+      html += `<div class="attn-course-card"><div class="attn-header" style="border-left:4px solid ${course.color};"><div class="attn-title-row"><div class="attn-title">${course.name}</div><div class="attn-pct ${isGood ? 'good' : 'bad'}">${pct}%</div></div><div class="attn-bar-bg"><div class="attn-bar-fill ${isGood ? 'good' : 'bad'}" style="width:${Math.min(pct,100)}%"></div></div><div class="attn-stats"><span>✅ ${present} attended</span><span>❌ ${absent} missed</span><span>📊 ${held} held</span><span>❓ ${notMarked} not marked</span></div>${!isGood && held > 0 ? `<div class="attn-alert">⚠️ Below 75% — need ${Math.ceil(0.75*held) - present} more attendances out of remaining classes</div>` : ''}</div><div class="attn-list">`;
+
+      dates.forEach(d => {
+        const ds = d.toISOString().split('T')[0];
+        const entry = rec[ds] || {};
+        const heldStatus = entry.held;
+        const presentStatus = entry.present;
         const dateLabel = formatDateShort(d);
-        html += `<div class="attn-row"><div class="attn-date-info"><div class="attn-date">${dateLabel}</div><div class="attn-time">${course.time}</div></div><div class="attn-actions"><button class="attn-btn ${status === true ? 'on' : ''}" onclick="markAttn('${key}','${ds}',true)">✓</button><button class="attn-btn ${status === false ? 'off' : ''}" onclick="markAttn('${key}','${ds}',false)">✕</button></div></div>`;
+        const isPast = d <= today;
+        const rowClass = heldStatus === false ? 'style="opacity:0.5;background:rgba(255,255,255,0.02);"' : '';
+
+        html += `<div class="attn-row" ${rowClass}><div class="attn-date-info"><div class="attn-date">${dateLabel}</div><div class="attn-time">${course.time}</div></div><div class="attn-actions" style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;"><button class="attn-btn ${heldStatus === true ? 'on' : ''}" onclick="markAttnHeld('${key}','${ds}',true)" title="Class was held">📚</button><button class="attn-btn ${heldStatus === false ? 'off' : ''}" onclick="markAttnHeld('${key}','${ds}',false)" title="Class not held/cancelled">🚫</button>${heldStatus === true ? `<button class="attn-btn ${presentStatus === true ? 'on' : ''}" onclick="markAttnPresent('${key}','${ds}',true)" title="I was present">✓</button><button class="attn-btn ${presentStatus === false ? 'off' : ''}" onclick="markAttnPresent('${key}','${ds}',false)" title="I was absent">✕</button>` : '<span style="color:var(--muted);font-size:0.7rem;padding:6px;">N/A</span>'}</div></div>`;
       });
       html += `</div></div>`;
     });
-    container.innerHTML = html || '<div class="empty-msg">No attendance data yet.</div>';
+
+    container.innerHTML = html;
+
+    // Update overall stats
+    const overallPct = overallHeld > 0 ? Math.round((overallPresent / overallHeld) * 100) : 0;
+    const totalAbsent = overallHeld - overallPresent;
+    document.getElementById('total-held').textContent = overallHeld;
+    document.getElementById('total-present').textContent = overallPresent;
+    document.getElementById('total-absent').textContent = totalAbsent;
+    const pctEl = document.getElementById('overall-pct');
+    pctEl.textContent = overallPct + '%';
+    pctEl.style.color = overallPct >= 75 ? 'var(--accent3)' : 'var(--accent4)';
   }
-  function markAttn(course, date, status) {
+
+  function markAttnHeld(course, date, held) {
     const data = loadAttendance();
     if (!data[course]) data[course] = {};
-    data[course][date] = status;
+    if (!data[course][date]) data[course][date] = {};
+    // Toggle: if already set to this value, clear it
+    if (data[course][date].held === held) {
+      data[course][date].held = undefined;
+      data[course][date].present = undefined;
+    } else {
+      data[course][date].held = held;
+      if (held === false) data[course][date].present = null;
+    }
     saveAttendance(data);
     renderAttendance();
+  }
+
+  function markAttnPresent(course, date, present) {
+    const data = loadAttendance();
+    if (!data[course]) data[course] = {};
+    if (!data[course][date]) data[course][date] = {};
+    // Toggle: if already set to this value, clear it
+    if (data[course][date].present === present) {
+      data[course][date].present = undefined;
+    } else {
+      data[course][date].present = present;
+    }
+    saveAttendance(data);
+    renderAttendance();
+  }
+
+  function exportAttendance() {
+    const data = loadAttendance();
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'attendance-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importAttendance(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        saveAttendance(data);
+        renderAttendance();
+        alert('Attendance data imported successfully!');
+      } catch(err) {
+        alert('Invalid file format');
+      }
+    };
+    reader.readAsText(file);
   }
 
   // Allow Enter key in ref inputs
