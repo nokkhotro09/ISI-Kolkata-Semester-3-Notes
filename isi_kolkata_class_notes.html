@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ISI Kolkata — Class Notes Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #a371f7;
+    --accent3: #3fb950;
+    --accent4: #f85149;
+    --accent5: #d29922;
+    --exam: #d29922;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1f2e 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 16px 20px;
+    text-align: center;
+  }
+  .header h1 { margin: 0; font-size: 1.5rem; color: #fff; letter-spacing: -0.5px; }
+  .header p { margin: 6px 0 0; color: var(--muted); font-size: 0.9rem; }
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    scrollbar-width: none;
+    padding: 0 4px;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1;
+    min-width: 100px;
+    padding: 16px 14px;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    -webkit-appearance: none;
+    margin: 0 2px;
+  }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(88,166,255,0.08);
+  }
+  .tab:hover { color: var(--text); }
+  .content { padding: 16px; max-width: 900px; margin: 0 auto; padding-bottom: 40px; }
+  .hidden { display: none !important; }
+
+  /* Calendar */
+  .cal-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .cal-nav button {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    -webkit-appearance: none;
+  }
+  .cal-nav button:active { transform: scale(0.96); }
+  .cal-nav button:hover { border-color: var(--accent); }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-day-label {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 8px 0 6px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .cal-cell {
+    aspect-ratio: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 5px 3px;
+    font-size: 0.78rem;
+    position: relative;
+    min-height: 56px;
+    transition: transform 0.1s;
+  }
+  .cal-cell:active { transform: scale(0.97); }
+  .cal-cell.out { opacity: 0.25; }
+  .cal-cell .dnum { font-weight: 700; margin-bottom: 3px; font-size: 0.85rem; }
+  .cal-cell .cls-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin: 1px;
+    flex-shrink: 0;
+  }
+  .cal-cell .cls-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+    margin-top: auto;
+    padding-bottom: 2px;
+  }
+  .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+  .cal-cell.has-class { cursor: pointer; }
+  .cal-cell.has-class:hover { border-color: var(--accent); }
+  .cal-cell.exam-day {
+    background: rgba(210,153,34,0.12);
+    border-color: var(--exam);
+    box-shadow: 0 0 0 1px var(--exam);
+  }
+  .cal-cell.exam-day .dnum { color: var(--exam); }
+  .exam-badge {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--exam);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 1px;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 16px 0 8px;
+    font-size: 0.72rem;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    background: var(--card);
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* Day detail */
+  #day-detail {
+    margin-top: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    display: none;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  #detail-date { margin: 0 0 12px; color: #fff; font-size: 1.05rem; }
+  .detail-class-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-class-row:last-child { border-bottom: none; }
+  .detail-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .detail-info { flex: 1; }
+  .detail-name { font-weight: 600; color: #fff; font-size: 0.92rem; }
+  .detail-time { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .exam-banner {
+    background: rgba(210,153,34,0.12);
+    border: 1px solid var(--exam);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    color: var(--exam);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Course cards */
+  .course-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  .course-header {
+    padding: 18px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .course-title { font-size: 1.15rem; font-weight: 700; color: #fff; margin: 0; line-height: 1.3; }
+  .course-prof { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .course-badge {
+    font-size: 0.68rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .course-body { padding: 0; }
+  .section-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .section-tabs::-webkit-scrollbar { display: none; }
+  .sec-tab {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-bottom: 2.5px solid transparent;
+    white-space: nowrap;
+    -webkit-appearance: none;
+  }
+  .sec-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .sec-content { padding: 18px 16px; animation: fadeIn 0.2s ease; }
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 32px 18px;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+    background: rgba(255,255,255,0.01);
+  }
+  .upload-zone:hover { border-color: var(--accent); color: var(--text); background: rgba(88,166,255,0.03); }
+  .upload-zone:active { transform: scale(0.98); }
+  .upload-zone svg { margin-bottom: 10px; display: inline-block; }
+  .file-list { list-style: none; padding: 0; margin: 0; }
+  .file-item, .ref-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    word-break: break-all;
+    gap: 10px;
+  }
+  .file-item a, .ref-item a { color: var(--accent); text-decoration: none; }
+  .file-item a:hover, .ref-item a:hover { text-decoration: underline; }
+  .file-item .del, .ref-item .del { color: var(--accent4); cursor: pointer; font-size: 0.72rem; margin-left: 8px; white-space: nowrap; flex-shrink: 0; }
+  .file-item .del:hover, .ref-item .del:hover { text-decoration: underline; }
+  .empty-msg { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 24px 10px; }
+  .ref-item a { color: var(--accent3); }
+
+  /* Add ref input */
+  .ref-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .ref-input-group input {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .ref-input-group input:focus { border-color: var(--accent); }
+  .ref-input-group button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+  .ref-input-group button:active { transform: scale(0.96); }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .cal-cell { min-height: 44px; font-size: 0.65rem; padding: 3px 2px; }
+    .cal-cell .dnum { font-size: 0.75rem; }
+    .cal-cell .cls-dot { width: 5px; height: 5px; }
+    .header h1 { font-size: 1.15rem; }
+    .course-title { font-size: 1rem; }
+    .tab { font-size: 0.72rem; padding: 14px 10px; min-width: 85px; }
+    .sec-tab { font-size: 0.72rem; padding: 12px 8px; }
+  }
+  @media (min-width: 768px) {
+    .content { padding: 24px; }
+    .cal-cell { min-height: 72px; }
+    .tab { min-width: 120px; padding: 16px 18px; font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📚 ISI Kolkata — Class Notes</h1>
+  <p>Semester Schedule & Course Hub &middot; July – November 2026</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchMain('calendar')">📅 Calendar</button>
+  <button class="tab" onclick="switchMain('auction')">Auction Theory</button>
+  <button class="tab" onclick="switchMain('networks')">Econ & Networks</button>
+  <button class="tab" onclick="switchMain('macro')">Macro II</button>
+  <button class="tab" onclick="switchMain('conflict')">Conflict</button>
+</div>
+
+<div class="content">
+  <!-- CALENDAR -->
+  <div id="view-calendar">
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">◀ Prev</button>
+      <span id="cal-month-year" style="font-weight:700;font-size:1.1rem;"></span>
+      <button onclick="changeMonth(1)">Next ▶</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div>Auction Theory</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a371f7"></div>Econ & Social Networks</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div>Macroeconomics II</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div>Economics of Conflict</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div>Mid-Sem Exams</div>
+    </div>
+    <div id="day-detail">
+      <h3 id="detail-date"></h3>
+      <div id="detail-classes"></div>
+    </div>
+  </div>
+
+  <!-- COURSE: Auction Theory -->
+  <div id="view-auction" class="hidden">
+    <div class="course-card">
+      <div class="course-header" style="border-left:4px solid #58a6ff;">
+        <div>
+          <div class="course-title">Auction Theory</div>
+          <div class="course-prof">Prof. Priyadarshi Banerjee</div>
+        </div>
+        <span class="course-badge" style="background:#58a6ff;">Mon & Wed · 9:20–11:05</span>
+      </div>
+      <div class="course-body">
+        <div class="section-tabs">
+          <button class="sec-tab active" onclick="switchSec('auction','refs')">📚 References</button>
+          <button class="sec-tab" onclick="switchSec('auction','notes')">📝 Class Notes</button>
+          <button class="sec-tab" onclick="switchSec('auction','assign')">📋 Assignments</button>
+        </div>
+        <div class="sec-content" id="auction-refs">
+          <div class="ref-input-group">
+            <input type="text" id="auction-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="auction-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('auction')">Add</button>
+          </div>
+          <ul class="file-list" id="auction-ref-list"></ul>
+          <div class="empty-msg" id="auction-ref-empty">No references yet. Add links above.</div>
+        </div>
+        <div class="sec-content hidden" id="auction-notes">
+          <div class="upload-zone" onclick="document.getElementById('auction-note-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="auction-note-input" class="hidden" multiple onchange="handleUpload('auction','notes',this)">
+          <ul class="file-list" id="auction-note-list"></ul>
+          <div class="empty-msg" id="auction-note-empty">No notes uploaded yet.</div>
+        </div>
+        <div class="sec-content hidden" id="auction-assign">
+          <div class="upload-zone" onclick="document.getElementById('auction-assign-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="auction-assign-input" class="hidden" multiple onchange="handleUpload('auction','assign',this)">
+          <ul class="file-list" id="auction-assign-list"></ul>
+          <div class="empty-msg" id="auction-assign-empty">No assignments uploaded yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE: Econ & Social Networks -->
+  <div id="view-networks" class="hidden">
+    <div class="course-card">
+      <div class="course-header" style="border-left:4px solid #a371f7;">
+        <div>
+          <div class="course-title">Economic and Social Networks</div>
+          <div class="course-prof">Prof. Anuj Bhowmik</div>
+        </div>
+        <span class="course-badge" style="background:#a371f7;">Mon & Wed · 11:10–12:55</span>
+      </div>
+      <div class="course-body">
+        <div class="section-tabs">
+          <button class="sec-tab active" onclick="switchSec('networks','refs')">📚 References</button>
+          <button class="sec-tab" onclick="switchSec('networks','notes')">📝 Class Notes</button>
+          <button class="sec-tab" onclick="switchSec('networks','assign')">📋 Assignments</button>
+        </div>
+        <div class="sec-content" id="networks-refs">
+          <div class="ref-input-group">
+            <input type="text" id="networks-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="networks-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('networks')">Add</button>
+          </div>
+          <ul class="file-list" id="networks-ref-list"></ul>
+          <div class="empty-msg" id="networks-ref-empty">No references yet. Add links above.</div>
+        </div>
+        <div class="sec-content hidden" id="networks-notes">
+          <div class="upload-zone" onclick="document.getElementById('networks-note-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="networks-note-input" class="hidden" multiple onchange="handleUpload('networks','notes',this)">
+          <ul class="file-list" id="networks-note-list"></ul>
+          <div class="empty-msg" id="networks-note-empty">No notes uploaded yet.</div>
+        </div>
+        <div class="sec-content hidden" id="networks-assign">
+          <div class="upload-zone" onclick="document.getElementById('networks-assign-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="networks-assign-input" class="hidden" multiple onchange="handleUpload('networks','assign',this)">
+          <ul class="file-list" id="networks-assign-list"></ul>
+          <div class="empty-msg" id="networks-assign-empty">No assignments uploaded yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE: Macroeconomics II -->
+  <div id="view-macro" class="hidden">
+    <div class="course-card">
+      <div class="course-header" style="border-left:4px solid #3fb950;">
+        <div>
+          <div class="course-title">Macroeconomics II</div>
+          <div class="course-prof">Prof. Brati Sankar Chakraborty & Kumarjit Mandal</div>
+        </div>
+        <span class="course-badge" style="background:#3fb950;">Mon 16:05–17:50 & Tue 14:15–16:00</span>
+      </div>
+      <div class="course-body">
+        <div class="section-tabs">
+          <button class="sec-tab active" onclick="switchSec('macro','refs')">📚 References</button>
+          <button class="sec-tab" onclick="switchSec('macro','notes')">📝 Class Notes</button>
+          <button class="sec-tab" onclick="switchSec('macro','assign')">📋 Assignments</button>
+        </div>
+        <div class="sec-content" id="macro-refs">
+          <div class="ref-input-group">
+            <input type="text" id="macro-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="macro-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('macro')">Add</button>
+          </div>
+          <ul class="file-list" id="macro-ref-list"></ul>
+          <div class="empty-msg" id="macro-ref-empty">No references yet. Add links above.</div>
+        </div>
+        <div class="sec-content hidden" id="macro-notes">
+          <div class="upload-zone" onclick="document.getElementById('macro-note-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="macro-note-input" class="hidden" multiple onchange="handleUpload('macro','notes',this)">
+          <ul class="file-list" id="macro-note-list"></ul>
+          <div class="empty-msg" id="macro-note-empty">No notes uploaded yet.</div>
+        </div>
+        <div class="sec-content hidden" id="macro-assign">
+          <div class="upload-zone" onclick="document.getElementById('macro-assign-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="macro-assign-input" class="hidden" multiple onchange="handleUpload('macro','assign',this)">
+          <ul class="file-list" id="macro-assign-list"></ul>
+          <div class="empty-msg" id="macro-assign-empty">No assignments uploaded yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE: Economics of Conflict -->
+  <div id="view-conflict" class="hidden">
+    <div class="course-card">
+      <div class="course-header" style="border-left:4px solid #f85149;">
+        <div>
+          <div class="course-title">Economics of Conflict</div>
+          <div class="course-prof">Prof. Indraneel Dasgupta</div>
+        </div>
+        <span class="course-badge" style="background:#f85149;">Tue & Fri · 16:05–17:50</span>
+      </div>
+      <div class="course-body">
+        <div class="section-tabs">
+          <button class="sec-tab active" onclick="switchSec('conflict','refs')">📚 References</button>
+          <button class="sec-tab" onclick="switchSec('conflict','notes')">📝 Class Notes</button>
+          <button class="sec-tab" onclick="switchSec('conflict','assign')">📋 Assignments</button>
+        </div>
+        <div class="sec-content" id="conflict-refs">
+          <div class="ref-input-group">
+            <input type="text" id="conflict-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="conflict-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('conflict')">Add</button>
+          </div>
+          <ul class="file-list" id="conflict-ref-list"></ul>
+          <div class="empty-msg" id="conflict-ref-empty">No references yet. Add links above.</div>
+        </div>
+        <div class="sec-content hidden" id="conflict-notes">
+          <div class="upload-zone" onclick="document.getElementById('conflict-note-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="conflict-note-input" class="hidden" multiple onchange="handleUpload('conflict','notes',this)">
+          <ul class="file-list" id="conflict-note-list"></ul>
+          <div class="empty-msg" id="conflict-note-empty">No notes uploaded yet.</div>
+        </div>
+        <div class="sec-content hidden" id="conflict-assign">
+          <div class="upload-zone" onclick="document.getElementById('conflict-assign-input').click()">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored locally</div>
+          </div>
+          <input type="file" id="conflict-assign-input" class="hidden" multiple onchange="handleUpload('conflict','assign',this)">
+          <ul class="file-list" id="conflict-assign-list"></ul>
+          <div class="empty-msg" id="conflict-assign-empty">No assignments uploaded yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== SEMESTER DATA =====
+  const SEM_START = new Date(2026, 6, 20); // July 20, 2026
+  const SEM_END   = new Date(2026, 10, 6); // Nov 6, 2026
+  const MIDSEM_START = new Date(2026, 8, 7);  // Sept 7, 2026
+  const MIDSEM_END   = new Date(2026, 8, 11); // Sept 11, 2026
+
+  const COURSES = {
+    auction:  { name: 'Auction Theory', color: '#58a6ff', days: [1,3], time: '9:20–11:05' },
+    networks: { name: 'Econ & Social Networks', color: '#a371f7', days: [1,3], time: '11:10–12:55' },
+    macro:    { name: 'Macroeconomics II', color: '#3fb950', days: [1,2], time: 'Mon 16:05–17:50, Tue 14:15–16:00' },
+    conflict: { name: 'Economics of Conflict', color: '#f85149', days: [2,5], time: '16:05–17:50' }
+  };
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+  const today = new Date();
+
+  function isMidSem(date) {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    return d >= MIDSEM_START && d <= MIDSEM_END;
+  }
+
+  // ===== NAVIGATION =====
+  function switchMain(view) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    ['calendar','auction','networks','macro','conflict'].forEach(v => {
+      document.getElementById('view-' + v).classList.add('hidden');
+    });
+    document.getElementById('view-' + view).classList.remove('hidden');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function switchSec(course, sec) {
+    const tabs = event.target.parentElement.querySelectorAll('.sec-tab');
+    tabs.forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    ['refs','notes','assign'].forEach(s => {
+      document.getElementById(course + '-' + s).classList.add('hidden');
+    });
+    document.getElementById(course + '-' + sec).classList.remove('hidden');
+  }
+
+  // ===== CALENDAR =====
+  function getClassesForDate(d) {
+    const dow = d.getDay();
+    const result = [];
+    if (d < SEM_START || d > SEM_END) return result;
+    if (isMidSem(d)) return result; // No classes during mid-sem
+    if (dow === 1) {
+      result.push({...COURSES.auction, time: '9:20–11:05'});
+      result.push({...COURSES.networks, time: '11:10–12:55'});
+      result.push({...COURSES.macro, time: '16:05–17:50'});
+    }
+    if (dow === 2) {
+      result.push({...COURSES.macro, time: '14:15–16:00'});
+      result.push({...COURSES.conflict, time: '16:05–17:50'});
+    }
+    if (dow === 3) {
+      result.push({...COURSES.auction, time: '9:20–11:05'});
+      result.push({...COURSES.networks, time: '11:10–12:55'});
+    }
+    if (dow === 5) {
+      result.push({...COURSES.conflict, time: '16:05–17:50'});
+    }
+    return result;
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+    const labels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    labels.forEach(l => {
+      const el = document.createElement('div');
+      el.className = 'cal-day-label';
+      el.textContent = l;
+      grid.appendChild(el);
+    });
+
+    const first = new Date(currentYear, currentMonth, 1);
+    const startDay = first.getDay();
+    const daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+    document.getElementById('cal-month-year').textContent = first.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+
+    const prevDays = new Date(currentYear, currentMonth, 0).getDate();
+    for (let i = startDay - 1; i >= 0; i--) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell out';
+      cell.innerHTML = `<span class="dnum">${prevDays - i}</span>`;
+      grid.appendChild(cell);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(currentYear, currentMonth, d);
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell';
+      if (date.toDateString() === today.toDateString()) cell.classList.add('today');
+
+      const midsem = isMidSem(date);
+      if (midsem) {
+        cell.classList.add('exam-day');
+        cell.innerHTML = `<span class="dnum">${d}</span><div class="exam-badge">MID-SEM</div>`;
+        cell.onclick = () => showExamDetail(date);
+        grid.appendChild(cell);
+        continue;
+      }
+
+      const classes = getClassesForDate(date);
+      let dots = '';
+      classes.forEach(c => {
+        dots += `<div class="cls-dot" style="background:${c.color}"></div>`;
+      });
+      cell.innerHTML = `<span class="dnum">${d}</span><div class="cls-dots">${dots}</div>`;
+      if (classes.length > 0) {
+        cell.classList.add('has-class');
+        cell.onclick = () => showDayDetail(date, classes);
+      }
+      grid.appendChild(cell);
+    }
+
+    const totalCells = startDay + daysInMonth;
+    const rem = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= rem; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell out';
+      cell.innerHTML = `<span class="dnum">${i}</span>`;
+      grid.appendChild(cell);
+    }
+  }
+
+  function changeMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar();
+    document.getElementById('day-detail').style.display = 'none';
+  }
+
+  function showDayDetail(date, classes) {
+    const detail = document.getElementById('day-detail');
+    document.getElementById('detail-date').textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    const container = document.getElementById('detail-classes');
+    container.innerHTML = classes.map(c => `
+      <div class="detail-class-row">
+        <div class="detail-dot" style="background:${c.color};"></div>
+        <div class="detail-info">
+          <div class="detail-name">${c.name}</div>
+          <div class="detail-time">${c.time}</div>
+        </div>
+      </div>
+    `).join('');
+    detail.style.display = 'block';
+    detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function showExamDetail(date) {
+    const detail = document.getElementById('day-detail');
+    document.getElementById('detail-date').textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    document.getElementById('detail-classes').innerHTML = `
+      <div class="exam-banner">📝 Mid-Semester Examination Week — No regular classes</div>
+    `;
+    detail.style.display = 'block';
+    detail.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  // ===== REFERENCES =====
+  function addRef(course) {
+    const url = document.getElementById(`${course}-ref-url`).value.trim();
+    const name = document.getElementById(`${course}-ref-name`).value.trim();
+    if (!url) return;
+    const displayName = name || url;
+    const list = document.getElementById(`${course}-ref-list`);
+    const li = document.createElement('li');
+    li.className = 'ref-item';
+    li.innerHTML = `<a href="${url}" target="_blank" rel="noopener">🔗 ${displayName}</a><span class="del" onclick="this.parentElement.remove(); checkEmpty('${course}','ref');">Remove</span>`;
+    list.appendChild(li);
+    document.getElementById(`${course}-ref-url`).value = '';
+    document.getElementById(`${course}-ref-name`).value = '';
+    checkEmpty(course, 'ref');
+  }
+
+  // ===== FILE UPLOAD =====
+  function handleUpload(course, type, input) {
+    const files = Array.from(input.files);
+    const listId = `${course}-${type === 'notes' ? 'note' : 'assign'}-list`;
+    const list = document.getElementById(listId);
+    files.forEach(file => {
+      const li = document.createElement('li');
+      li.className = 'file-item';
+      const url = URL.createObjectURL(file);
+      li.innerHTML = `<span>📄 ${file.name}</span><div><a href="${url}" target="_blank" download>Download</a><span class="del" onclick="this.parentElement.parentElement.remove(); checkEmpty('${course}','${type === 'notes' ? 'note' : 'assign'}');">Remove</span></div>`;
+      list.appendChild(li);
+    });
+    input.value = '';
+    checkEmpty(course, type === 'notes' ? 'note' : 'assign');
+  }
+
+  function checkEmpty(course, type) {
+    const list = document.getElementById(`${course}-${type}-list`);
+    const empty = document.getElementById(`${course}-${type}-empty`);
+    if (!list || !empty) return;
+    empty.style.display = list.children.length === 0 ? 'block' : 'none';
+  }
+
+  // Allow Enter key in ref inputs
+  ['auction','networks','macro','conflict'].forEach(c => {
+    document.getElementById(`${c}-ref-url`).addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
+    document.getElementById(`${c}-ref-name`).addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
+  });
+
+  renderCalendar();
+</script>
+</body>
+</html>
