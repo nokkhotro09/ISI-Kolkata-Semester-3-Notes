@@ -543,7 +543,179 @@
     .cal-cell { min-height: 72px; }
     .tab { min-width: 110px; padding: 16px 14px; font-size: 0.82rem; }
   }
+
+  /* File Cards */
+  .file-item.file-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    margin-bottom: 10px;
+  }
+  .file-item.file-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .card-icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .card-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .card-name {
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.92rem;
+    word-break: break-all;
+    line-height: 1.3;
+  }
+  .card-date {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .card-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .card-action {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.15s;
+    padding: 0;
+    -webkit-appearance: none;
+  }
+  .card-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .card-action.del:hover {
+    border-color: var(--accent4);
+    color: var(--accent4);
+  }
+
+  /* Preview Modal */
+  .preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-modal.hidden { display: none !important; }
+  .preview-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(4px);
+  }
+  .preview-content {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 94%;
+    max-width: 960px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.6);
+  }
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .preview-title {
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.9rem;
+    word-break: break-all;
+    line-height: 1.3;
+  }
+  .preview-close {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+  }
+  .preview-close:hover {
+    border-color: var(--accent4);
+    color: var(--accent4);
+  }
+  .preview-body {
+    flex: 1;
+    overflow: auto;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-body img {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+  }
+  .preview-body iframe {
+    width: 100%;
+    height: 80vh;
+    border: none;
+    background: #fff;
+  }
+  .preview-fallback {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .preview-fallback a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -1021,10 +1193,7 @@
         const url = urlData.publicUrl;
         const origName = file.name.replace(/^\d+_/, '');
         const dateStr = file.created_at ? new Date(file.created_at).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '';
-        const li = document.createElement('li');
-        li.className = 'file-item';
-        li.dataset.path = filePath;
-        li.innerHTML = `<span>📄 ${origName}</span><div style="display:flex;align-items:center;gap:8px;">${dateStr ? `<span class="file-date">${dateStr}</span>` : ''}<a href="${url}" target="_blank" download>Download</a><span class="del" onclick="deleteFile('${course}','${type}','${filePath}',this)">Remove</span></div>`;
+        const li = createFileCard(course, type, filePath, url, origName, dateStr);
         list.appendChild(li);
       });
       checkEmpty(course, type === 'ref-file' ? 'ref-file' : type);
@@ -1167,10 +1336,7 @@
     for (const file of files) {
       const result = await uploadToSupabase(file, folder, file.name);
       if (!result) continue;
-      const li = document.createElement('li');
-      li.className = 'file-item';
-      li.dataset.path = result.path;
-      li.innerHTML = `<span>📄 ${result.name}</span><div style="display:flex;align-items:center;gap:8px;"><span class="file-date">${dateStr}</span><a href="${result.url}" target="_blank" download>Download</a><span class="del" onclick="deleteFile('${course}','${type}','${result.path}',this)">Remove</span></div>`;
+      const li = createFileCard(course, type, result.path, result.url, result.name, dateStr);
       list.appendChild(li);
     }
     if (zone) zone.classList.remove('uploading');
@@ -1184,6 +1350,74 @@
     if (!list || !empty) return;
     empty.style.display = list.children.length === 0 ? 'block' : 'none';
   }
+
+  function createFileCard(course, type, filePath, url, name, dateStr) {
+    const li = document.createElement('li');
+    li.className = 'file-item file-card';
+    li.dataset.path = filePath;
+    li.dataset.previewUrl = url;
+    li.dataset.previewName = name;
+    li.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon">📄</div>
+        <div class="card-info">
+          <div class="card-name">${name}</div>
+          ${dateStr ? `<div class="card-date">${dateStr}</div>` : ''}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="card-action" title="Preview">👁</button>
+        <a class="card-action" href="${url}" target="_blank" download title="Download" onclick="event.stopPropagation()">⬇</a>
+        <span class="card-action del" onclick="event.stopPropagation(); deleteFile('${course}','${type}','${filePath}',this)" title="Remove">🗑</span>
+      </div>
+    `;
+    li.onclick = (e) => {
+      if (e.target.closest('.card-action')) return;
+      openPreview(li.dataset.previewUrl, li.dataset.previewName);
+    };
+    return li;
+  }
+
+  function openPreview(url, name) {
+    const modal = document.getElementById('preview-modal');
+    const body = document.getElementById('modal-body');
+    const title = document.getElementById('modal-title');
+    title.textContent = name || 'Preview';
+    body.innerHTML = getPreviewHTML(url, name);
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePreview() {
+    const modal = document.getElementById('preview-modal');
+    document.getElementById('modal-body').innerHTML = '';
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function getPreviewHTML(url, name) {
+    const ext = (name || '').split('.').pop().toLowerCase();
+    const imgExts = ['jpg','jpeg','png','gif','webp','svg','bmp','ico'];
+    if (imgExts.includes(ext)) {
+      return `<img src="${url}" alt="${name}" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;">`;
+    }
+    if (ext === 'pdf') {
+      return `<iframe src="${url}" title="PDF Preview" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;"></iframe>`;
+    }
+    // Fallback for docs / other files
+    return `<div class="preview-fallback">
+      <div style="font-size:3rem;margin-bottom:12px;">📄</div>
+      <div style="font-weight:600;color:#fff;margin-bottom:8px;">${name}</div>
+      <div style="margin-bottom:16px;">Preview not available for this file type.</div>
+      <a href="${url}" target="_blank" download>⬇ Download to view</a>
+    </div>`;
+  }
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePreview();
+  });
+
 
   // ===== ATTENDANCE =====
   function loadAttendance() {
@@ -1347,5 +1581,17 @@
 
   renderCalendar();
 </script>
+
+<!-- Preview Modal -->
+<div id="preview-modal" class="preview-modal hidden">
+  <div class="preview-overlay" onclick="closePreview()"></div>
+  <div class="preview-content">
+    <div class="preview-header">
+      <span class="preview-title" id="modal-title">Preview</span>
+      <button class="preview-close" onclick="closePreview()">✕</button>
+    </div>
+    <div class="preview-body" id="modal-body"></div>
+  </div>
+</div>
 </body>
 </html>
