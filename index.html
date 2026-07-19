@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ISI Kolkata MSQE@Sem-3</title>
+<title>📚 ISI Kolkata MSQE@Sem-3</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <style>
@@ -544,12 +544,11 @@
     .tab { min-width: 110px; padding: 16px 14px; font-size: 0.82rem; }
   }
 </style>
-<base target="_blank">
 </head>
 <body>
 
 <div class="header">
-  <h1>ISI Kolkata MSQE@Sem-3</h1>
+  <h1>📚 ISI Kolkata MSQE@Sem-3</h1>
   <p>Semester Schedule & Course Hub &middot; July – November 2026</p>
 </div>
 
@@ -557,9 +556,9 @@
   <button class="tab active" onclick="switchMain('calendar')">📅 Calendar</button>
   <button class="tab" onclick="switchMain('auction')">Auction Theory</button>
   <button class="tab" onclick="switchMain('networks')">Networks</button>
-  <button class="tab" onclick="switchMain('macro')">Macro II</button>
+  <button class="tab" onclick="switchMain('macro')">Macroeconomics II</button>
   <button class="tab" onclick="switchMain('conflict')">Conflicts</button>
-  <button class="tab" onclick="switchMain('attendance')"> Attendance</button>
+  <button class="tab" onclick="switchMain('attendance')">📊 Attendance</button>
 </div>
 
 <div class="content">
@@ -626,17 +625,17 @@
         <div class="sec-content hidden" id="auction-notes">
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="auction-note-date">
+            <input type="date" id="auction-notes-date">
           </div>
-          <div class="upload-zone" id="auction-note-zone" onclick="triggerUpload('auction','notes')">
+          <div class="upload-zone" id="auction-notes-zone" onclick="triggerUpload('auction','notes')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
-          <input type="file" id="auction-note-input" class="hidden" multiple onchange="handleUpload('auction','notes',this)">
-          <ul class="file-list" id="auction-note-list"></ul>
-          <div class="empty-msg" id="auction-note-empty">No notes uploaded yet.</div>
+          <input type="file" id="auction-notes-input" class="hidden" multiple onchange="handleUpload('auction','notes',this)">
+          <ul class="file-list" id="auction-notes-list"></ul>
+          <div class="empty-msg" id="auction-notes-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="auction-assign">
           <div class="upload-date-row">
@@ -698,17 +697,17 @@
         <div class="sec-content hidden" id="networks-notes">
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="networks-note-date">
+            <input type="date" id="networks-notes-date">
           </div>
-          <div class="upload-zone" id="networks-note-zone" onclick="triggerUpload('networks','notes')">
+          <div class="upload-zone" id="networks-notes-zone" onclick="triggerUpload('networks','notes')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
-          <input type="file" id="networks-note-input" class="hidden" multiple onchange="handleUpload('networks','notes',this)">
-          <ul class="file-list" id="networks-note-list"></ul>
-          <div class="empty-msg" id="networks-note-empty">No notes uploaded yet.</div>
+          <input type="file" id="networks-notes-input" class="hidden" multiple onchange="handleUpload('networks','notes',this)">
+          <ul class="file-list" id="networks-notes-list"></ul>
+          <div class="empty-msg" id="networks-notes-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="networks-assign">
           <div class="upload-date-row">
@@ -770,17 +769,17 @@
         <div class="sec-content hidden" id="macro-notes">
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="macro-note-date">
+            <input type="date" id="macro-notes-date">
           </div>
-          <div class="upload-zone" id="macro-note-zone" onclick="triggerUpload('macro','notes')">
+          <div class="upload-zone" id="macro-notes-zone" onclick="triggerUpload('macro','notes')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
-          <input type="file" id="macro-note-input" class="hidden" multiple onchange="handleUpload('macro','notes',this)">
-          <ul class="file-list" id="macro-note-list"></ul>
-          <div class="empty-msg" id="macro-note-empty">No notes uploaded yet.</div>
+          <input type="file" id="macro-notes-input" class="hidden" multiple onchange="handleUpload('macro','notes',this)">
+          <ul class="file-list" id="macro-notes-list"></ul>
+          <div class="empty-msg" id="macro-notes-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="macro-assign">
           <div class="upload-date-row">
@@ -842,17 +841,17 @@
         <div class="sec-content hidden" id="conflict-notes">
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="conflict-note-date">
+            <input type="date" id="conflict-notes-date">
           </div>
-          <div class="upload-zone" id="conflict-note-zone" onclick="triggerUpload('conflict','notes')">
+          <div class="upload-zone" id="conflict-notes-zone" onclick="triggerUpload('conflict','notes')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
-          <input type="file" id="conflict-note-input" class="hidden" multiple onchange="handleUpload('conflict','notes',this)">
-          <ul class="file-list" id="conflict-note-list"></ul>
-          <div class="empty-msg" id="conflict-note-empty">No notes uploaded yet.</div>
+          <input type="file" id="conflict-notes-input" class="hidden" multiple onchange="handleUpload('conflict','notes',this)">
+          <ul class="file-list" id="conflict-notes-list"></ul>
+          <div class="empty-msg" id="conflict-notes-empty">No notes uploaded yet.</div>
         </div>
         <div class="sec-content hidden" id="conflict-assign">
           <div class="upload-date-row">
