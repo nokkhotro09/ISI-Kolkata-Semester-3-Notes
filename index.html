@@ -544,6 +544,149 @@
     .tab { min-width: 110px; padding: 16px 14px; font-size: 0.82rem; }
   }
 
+
+  /* Paper Cards */
+  .paper-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .paper-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .paper-card.read {
+    border-color: var(--accent3);
+    background: rgba(63,185,80,0.06);
+  }
+  .paper-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .paper-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.15s;
+    -webkit-appearance: none;
+  }
+  .paper-check.checked {
+    background: var(--accent3);
+    border-color: var(--accent3);
+  }
+  .paper-check.checked::after {
+    content: '✓';
+    color: #0d1117;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .paper-title {
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    flex: 1;
+    word-break: break-word;
+  }
+  .paper-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .paper-title a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .paper-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .paper-tag {
+    font-size: 0.68rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .paper-tag.read-tag {
+    background: rgba(63,185,80,0.12);
+    border-color: var(--accent3);
+    color: var(--accent3);
+  }
+  .paper-doubt-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .paper-doubt-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.15s;
+  }
+  .paper-doubt-input:focus {
+    border-color: var(--accent);
+  }
+  .paper-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+  }
+  .paper-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    -webkit-appearance: none;
+  }
+  .paper-btn:hover {
+    border-color: var(--accent4);
+    color: var(--accent4);
+  }
+  .paper-btn.save {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .paper-btn.save:hover {
+    background: #4dabf7;
+    border-color: #4dabf7;
+  }
   /* File Cards */
   .file-item.file-card {
     display: flex;
@@ -716,6 +859,7 @@
   }
 </style>
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
 
@@ -730,6 +874,7 @@
   <button class="tab" onclick="switchMain('networks')">Networks</button>
   <button class="tab" onclick="switchMain('macro')">Macro II</button>
   <button class="tab" onclick="switchMain('conflict')">Conflicts</button>
+  <button class="tab" onclick="switchMain('project')">🔬 Project</button>
   <button class="tab" onclick="switchMain('attendance')">Attendance</button>
 </div>
 
@@ -1044,6 +1189,60 @@
     </div>
   </div>
 
+
+  <!-- PROJECT: Research Papers Tracker -->
+  <div id="view-project" class="hidden">
+    <div class="course-card">
+      <div class="course-header" style="border-left:4px solid #d29922;">
+        <div>
+          <div class="course-title">Project — Research Papers</div>
+          <div class="course-prof">Supervisor: Prof. Indraneel Dasgupta</div>
+        </div>
+        <span class="course-badge" style="background:#d29922;">MSQE Sem-3</span>
+      </div>
+      <div class="course-body">
+        <div class="section-tabs">
+          <button class="sec-tab active" onclick="switchSec('project','papers')">📄 Papers</button>
+          <button class="sec-tab" onclick="switchSec('project','refs')">📚 References</button>
+        </div>
+
+        <!-- Papers Tab -->
+        <div class="sec-content" id="project-papers">
+          <div class="ref-input-group" style="margin-bottom:18px;">
+            <input type="text" id="project-paper-title" placeholder="Paper title *" style="min-width:260px;">
+            <button onclick="addPaper()">Add Paper</button>
+          </div>
+          <div id="project-paper-list"></div>
+          <div class="empty-msg" id="project-paper-empty" style="display:none;">No papers added yet.</div>
+        </div>
+
+        <!-- References Tab -->
+        <div class="sec-content hidden" id="project-refs">
+          <div class="ref-input-group">
+            <input type="text" id="project-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="project-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('project')">Add Link</button>
+          </div>
+          <ul class="file-list" id="project-ref-link-list"></ul>
+          <div class="divider">OR UPLOAD FILE</div>
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="project-ref-file-date">
+          </div>
+          <div class="upload-zone" id="project-ref-file-zone" onclick="triggerUpload('project','ref-file')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
+          </div>
+          <input type="file" id="project-ref-file-input" class="hidden" multiple onchange="handleUpload('project','ref-file',this)">
+          <ul class="file-list" id="project-ref-file-list"></ul>
+          <div class="empty-msg" id="project-ref-file-empty">No reference files uploaded yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ATTENDANCE -->
   <div id="view-attendance" class="hidden">
     <div class="attn-export-row">
@@ -1103,7 +1302,8 @@
     'auction': { 'ref-file': 'auction/refs', 'notes': 'auction/notes', 'assign': 'auction/assign' },
     'networks': { 'ref-file': 'networks/refs', 'notes': 'networks/notes', 'assign': 'networks/assign' },
     'macro': { 'ref-file': 'macro/refs', 'notes': 'macro/notes', 'assign': 'macro/assign' },
-    'conflict': { 'ref-file': 'conflict/refs', 'notes': 'conflict/notes', 'assign': 'conflict/assign' }
+    'conflict': { 'ref-file': 'conflict/refs', 'notes': 'conflict/notes', 'assign': 'conflict/assign' },
+    'project': { 'ref-file': 'project/refs' }
   };
 
   let currentMonth = new Date().getMonth();
@@ -1124,21 +1324,24 @@
   function switchMain(view) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
-    ['calendar','auction','networks','macro','conflict','attendance'].forEach(v => {
+    ['calendar','auction','networks','macro','conflict','project','attendance'].forEach(v => {
       document.getElementById('view-' + v).classList.add('hidden');
     });
     document.getElementById('view-' + view).classList.remove('hidden');
     window.scrollTo({top:0,behavior:'smooth'});
     if (view === 'attendance') renderAttendance();
-    if (['auction','networks','macro','conflict'].includes(view)) loadCourseFiles(view);
+    if (['auction','networks','macro','conflict','project'].includes(view)) loadCourseFiles(view);
+    if (view === 'project') renderPapers();
   }
   function switchSec(course, sec) {
     const tabs = event.target.parentElement.querySelectorAll('.sec-tab');
     tabs.forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
-    ['refs','notes','assign'].forEach(s => {
-      document.getElementById(course + '-' + s).classList.add('hidden');
-    });
+    // Hide all sec-content divs within this course card
+    const parent = event.target.closest('.course-body');
+    if (parent) {
+      parent.querySelectorAll('.sec-content').forEach(el => el.classList.add('hidden'));
+    }
     document.getElementById(course + '-' + sec).classList.remove('hidden');
   }
 
@@ -1268,7 +1471,83 @@
     currentMonth += delta;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar(); document.getElementById('day-detail').style.display = 'none';
+  
+  // ===== PROJECT PAPER TRACKER =====
+  const PROJECT_PAPERS_KEY = 'isiProjectPapers';
+
+  function loadPapers() {
+    try { return JSON.parse(localStorage.getItem(PROJECT_PAPERS_KEY) || '[]'); } catch(e) { return []; }
+  }
+  function savePapers(papers) { localStorage.setItem(PROJECT_PAPERS_KEY, JSON.stringify(papers)); }
+
+  function addPaper() {
+    const titleEl = document.getElementById('project-paper-title');
+    const title = titleEl.value.trim();
+    if (!title) { titleEl.focus(); titleEl.style.borderColor = 'var(--accent4)'; setTimeout(()=>titleEl.style.borderColor='',1500); return; }
+
+    const papers = loadPapers();
+    papers.push({ id: Date.now(), title, read: false, doubt: '' });
+    savePapers(papers);
+    titleEl.value = '';
+    renderPapers();
+  }
+
+  function togglePaperRead(id) {
+    const papers = loadPapers();
+    const p = papers.find(x => x.id === id);
+    if (p) { p.read = !p.read; savePapers(papers); renderPapers(); }
+  }
+
+  function updatePaperDoubt(id, value) {
+    const papers = loadPapers();
+    const p = papers.find(x => x.id === id);
+    if (p) { p.doubt = value; savePapers(papers); }
+  }
+
+  function deletePaper(id) {
+    if (!confirm('Remove this paper?')) return;
+    const papers = loadPapers().filter(x => x.id !== id);
+    savePapers(papers);
+    renderPapers();
+  }
+
+  function renderPapers() {
+    const container = document.getElementById('project-paper-list');
+    const empty = document.getElementById('project-paper-empty');
+    const papers = loadPapers();
+    if (!container) return;
+
+    if (papers.length === 0) {
+      container.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    container.innerHTML = papers.map(p => `
+      <div class="paper-card ${p.read ? 'read' : ''}" data-id="${p.id}">
+        <div class="paper-header">
+          <button class="paper-check ${p.read ? 'checked' : ''}" onclick="togglePaperRead(${p.id})" title="Mark as read"></button>
+          <div class="paper-title">${escapeHtml(p.title)}</div>
+        </div>
+        <div class="paper-meta">
+          <span class="paper-tag ${p.read ? 'read-tag' : ''}">${p.read ? '✅ Read' : '⏳ Unread'}</span>
+        </div>
+        <div class="paper-doubt-label">💬 Doubts / Notes</div>
+        <textarea class="paper-doubt-input" placeholder="Write your doubts, key takeaways, or notes here..." oninput="updatePaperDoubt(${p.id}, this.value)">${escapeHtml(p.doubt)}</textarea>
+        <div class="paper-actions">
+          <button class="paper-btn" onclick="deletePaper(${p.id})">🗑 Remove</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  renderCalendar(); document.getElementById('day-detail').style.display = 'none';
   }
   function showDayDetail(date, classes) {
     const detail = document.getElementById('day-detail');
@@ -1574,10 +1853,92 @@
   }
 
   // Allow Enter key in ref inputs
-  ['auction','networks','macro','conflict'].forEach(c => {
-    document.getElementById(`${c}-ref-url`).addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
-    document.getElementById(`${c}-ref-name`).addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
+  ['auction','networks','macro','conflict','project'].forEach(c => {
+    const urlEl = document.getElementById(`${c}-ref-url`);
+    const nameEl = document.getElementById(`${c}-ref-name`);
+    if (urlEl) urlEl.addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
+    if (nameEl) nameEl.addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
   });
+
+  // Project paper Enter key
+  const paperTitleEl = document.getElementById('project-paper-title');
+  if (paperTitleEl) paperTitleEl.addEventListener('keypress', e => { if(e.key==='Enter') addPaper(); });
+
+
+  // ===== PROJECT PAPER TRACKER =====
+  const PROJECT_PAPERS_KEY = 'isiProjectPapers';
+
+  function loadPapers() {
+    try { return JSON.parse(localStorage.getItem(PROJECT_PAPERS_KEY) || '[]'); } catch(e) { return []; }
+  }
+  function savePapers(papers) { localStorage.setItem(PROJECT_PAPERS_KEY, JSON.stringify(papers)); }
+
+  function addPaper() {
+    const titleEl = document.getElementById('project-paper-title');
+    const title = titleEl.value.trim();
+    if (!title) { titleEl.focus(); titleEl.style.borderColor = 'var(--accent4)'; setTimeout(()=>titleEl.style.borderColor='',1500); return; }
+
+    const papers = loadPapers();
+    papers.push({ id: Date.now(), title, read: false, doubt: '' });
+    savePapers(papers);
+    titleEl.value = '';
+    renderPapers();
+  }
+
+  function togglePaperRead(id) {
+    const papers = loadPapers();
+    const p = papers.find(x => x.id === id);
+    if (p) { p.read = !p.read; savePapers(papers); renderPapers(); }
+  }
+
+  function updatePaperDoubt(id, value) {
+    const papers = loadPapers();
+    const p = papers.find(x => x.id === id);
+    if (p) { p.doubt = value; savePapers(papers); }
+  }
+
+  function deletePaper(id) {
+    if (!confirm('Remove this paper?')) return;
+    const papers = loadPapers().filter(x => x.id !== id);
+    savePapers(papers);
+    renderPapers();
+  }
+
+  function renderPapers() {
+    const container = document.getElementById('project-paper-list');
+    const empty = document.getElementById('project-paper-empty');
+    const papers = loadPapers();
+    if (!container) return;
+
+    if (papers.length === 0) {
+      container.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    container.innerHTML = papers.map(p => `
+      <div class="paper-card ${p.read ? 'read' : ''}" data-id="${p.id}">
+        <div class="paper-header">
+          <button class="paper-check ${p.read ? 'checked' : ''}" onclick="togglePaperRead(${p.id})" title="Mark as read"></button>
+          <div class="paper-title">${escapeHtml(p.title)}</div>
+        </div>
+        <div class="paper-meta">
+          <span class="paper-tag ${p.read ? 'read-tag' : ''}">${p.read ? '✅ Read' : '⏳ Unread'}</span>
+        </div>
+        <div class="paper-doubt-label">💬 Doubts / Notes</div>
+        <textarea class="paper-doubt-input" placeholder="Write your doubts, key takeaways, or notes here..." oninput="updatePaperDoubt(${p.id}, this.value)">${escapeHtml(p.doubt)}</textarea>
+        <div class="paper-actions">
+          <button class="paper-btn" onclick="deletePaper(${p.id})">🗑 Remove</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
   renderCalendar();
 </script>
