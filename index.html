@@ -18,6 +18,7 @@
     --accent3: #3fb950;
     --accent4: #f85149;
     --accent5: #d29922;
+    --analysis: #2f81f7;
     --exam: #d29922;
     --holiday: #bd93f9;
   }
@@ -871,9 +872,10 @@
 <div class="tabs">
   <button class="tab active" onclick="switchMain('calendar')">📅 Calendar</button>
   <button class="tab" onclick="switchMain('auction')">Auction</button>
+  <button class="tab" onclick="switchMain('analysis')">Real Analysis (Audit)</button>
   <button class="tab" onclick="switchMain('networks')">Networks</button>
   <button class="tab" onclick="switchMain('macro')">Macro II</button>
-  <button class="tab" onclick="switchMain('conflict')">Conflicts</button>
+  <button class="tab" onclick="switchMain('survey')">Sample Survey</button>
   <button class="tab" onclick="switchMain('project')">🔬 Project</button>
   <button class="tab" onclick="switchMain('attendance')">Attendance</button>
 </div>
@@ -889,9 +891,10 @@
     <div class="cal-grid" id="cal-grid"></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div>Auction Theory</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2f81f7"></div>Real Analysis</div>
       <div class="legend-item"><div class="legend-dot" style="background:#a371f7"></div>Econ & Social Networks</div>
       <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div>Macroeconomics II</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div>Economics of Conflict</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div>Sample Survey</div>
       <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div>Mid-Sem Exams</div>
       <div class="legend-item"><div class="legend-dot" style="background:#bd93f9"></div>Holiday</div>
     </div>
@@ -972,6 +975,78 @@
       </div>
     </div>
   </div>
+  
+  <!-- COURSE: Real Analysis -->
+  <div id="view-analysis" class="hidden">
+    <div class="course-card">
+      <div class="course-header" style="border-left:4px solid #2f81f7;">
+        <div>
+          <div class="course-title">Real Analysis (Audit Course)</div>
+          <div class="course-prof">Prof. Rudra P Sarkar</div>
+        </div>
+        <span class="course-badge" style="background:#2f81f7;">Mon & Wed · 11:10–12:50</span>
+      </div>
+      <div class="course-body">
+        <div class="section-tabs">
+          <button class="sec-tab active" onclick="switchSec('analysis','refs')">📚 References</button>
+          <button class="sec-tab" onclick="switchSec('analysis','notes')">📝 Class Notes</button>
+          <button class="sec-tab" onclick="switchSec('analysis','assign')">📋 Assignments</button>
+        </div>
+        <div class="sec-content" id="analysis-refs">
+          <div class="ref-input-group">
+            <input type="text" id="analysis-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="analysis-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('analysis')">Add Link</button>
+          </div>
+          <ul class="file-list" id="analysis-ref-link-list"></ul>
+          <div class="divider">OR UPLOAD FILE</div>
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="analysis-ref-file-date">
+          </div>
+          <div class="upload-zone" id="analysis-ref-file-zone" onclick="triggerUpload('analysis','ref-file')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
+          </div>
+          <input type="file" id="analysis-ref-file-input" class="hidden" multiple onchange="handleUpload('analysis','ref-file',this)">
+          <ul class="file-list" id="analysis-ref-file-list"></ul>
+          <div class="empty-msg" id="analysis-ref-file-empty">No reference files uploaded yet.</div>
+        </div>
+        <div class="sec-content hidden" id="analysis-notes">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="analysis-notes-date">
+          </div>
+          <div class="upload-zone" id="analysis-notes-zone" onclick="triggerUpload('analysis','notes')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
+          </div>
+          <input type="file" id="analysis-notes-input" class="hidden" multiple onchange="handleUpload('analysis','notes',this)">
+          <ul class="file-list" id="analysis-notes-list"></ul>
+          <div class="empty-msg" id="analysis-notes-empty">No notes uploaded yet.</div>
+        </div>
+        <div class="sec-content hidden" id="analysis-assign">
+          <div class="upload-date-row">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="analysis-assign-date">
+          </div>
+          <div class="upload-zone" id="analysis-assign-zone" onclick="triggerUpload('analysis','assign')">
+            <div class="spinner"></div>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
+            <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
+          </div>
+          <input type="file" id="analysis-assign-input" class="hidden" multiple onchange="handleUpload('analysis','assign',this)">
+          <ul class="file-list" id="analysis-assign-list"></ul>
+          <div class="empty-msg" id="analysis-assign-empty">No assignments uploaded yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- COURSE: Networks -->
   <div id="view-networks" class="hidden">
@@ -981,7 +1056,7 @@
           <div class="course-title">Economic and Social Networks</div>
           <div class="course-prof">Prof. Anuj Bhowmik</div>
         </div>
-        <span class="course-badge" style="background:#a371f7;">Mon & Wed · 11:10–12:55</span>
+        <span class="course-badge" style="background:#a371f7;">Tue 11:30–12:50 & Fri 11:10–12:50</span>
       </div>
       <div class="course-body">
         <div class="section-tabs">
@@ -1117,73 +1192,73 @@
     </div>
   </div>
 
-  <!-- COURSE: Conflicts -->
-  <div id="view-conflict" class="hidden">
+  <!-- COURSE: Sample Survey -->
+  <div id="view-survey" class="hidden">
     <div class="course-card">
       <div class="course-header" style="border-left:4px solid #f85149;">
         <div>
-          <div class="course-title">Economics of Conflict</div>
-          <div class="course-prof">Prof. Indraneel Dasgupta</div>
+          <div class="course-title">Sample Survey</div>
+          <div class="course-prof">Prof. Samarjit Das</div>
         </div>
-        <span class="course-badge" style="background:#f85149;">Tue & Fri · 16:05–17:50</span>
+        <span class="course-badge" style="background:#f85149;">Tue 10:15–11:30 & Fri 16:00–18:00</span>
       </div>
       <div class="course-body">
         <div class="section-tabs">
-          <button class="sec-tab active" onclick="switchSec('conflict','refs')">📚 References</button>
-          <button class="sec-tab" onclick="switchSec('conflict','notes')">📝 Class Notes</button>
-          <button class="sec-tab" onclick="switchSec('conflict','assign')">📋 Assignments</button>
+          <button class="sec-tab active" onclick="switchSec('survey','refs')">📚 References</button>
+          <button class="sec-tab" onclick="switchSec('survey','notes')">📝 Class Notes</button>
+          <button class="sec-tab" onclick="switchSec('survey','assign')">📋 Assignments</button>
         </div>
-        <div class="sec-content" id="conflict-refs">
+        <div class="sec-content" id="survey-refs">
           <div class="ref-input-group">
-            <input type="text" id="conflict-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
-            <input type="text" id="conflict-ref-name" placeholder="Name (optional)" style="min-width:120px;">
-            <button onclick="addRef('conflict')">Add Link</button>
+            <input type="text" id="survey-ref-url" placeholder="Paste link (Google Drive, arXiv, etc.)">
+            <input type="text" id="survey-ref-name" placeholder="Name (optional)" style="min-width:120px;">
+            <button onclick="addRef('survey')">Add Link</button>
           </div>
-          <ul class="file-list" id="conflict-ref-link-list"></ul>
+          <ul class="file-list" id="survey-ref-link-list"></ul>
           <div class="divider">OR UPLOAD FILE</div>
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="conflict-ref-file-date">
+            <input type="date" id="survey-ref-file-date">
           </div>
-          <div class="upload-zone" id="conflict-ref-file-zone" onclick="triggerUpload('conflict','ref-file')">
+          <div class="upload-zone" id="survey-ref-file-zone" onclick="triggerUpload('survey','ref-file')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload reference file</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs</div>
           </div>
-          <input type="file" id="conflict-ref-file-input" class="hidden" multiple onchange="handleUpload('conflict','ref-file',this)">
-          <ul class="file-list" id="conflict-ref-file-list"></ul>
-          <div class="empty-msg" id="conflict-ref-file-empty">No reference files uploaded yet.</div>
+          <input type="file" id="survey-ref-file-input" class="hidden" multiple onchange="handleUpload('survey','ref-file',this)">
+          <ul class="file-list" id="survey-ref-file-list"></ul>
+          <div class="empty-msg" id="survey-ref-file-empty">No reference files uploaded yet.</div>
         </div>
-        <div class="sec-content hidden" id="conflict-notes">
+        <div class="sec-content hidden" id="survey-notes">
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="conflict-notes-date">
+            <input type="date" id="survey-notes-date">
           </div>
-          <div class="upload-zone" id="conflict-notes-zone" onclick="triggerUpload('conflict','notes')">
+          <div class="upload-zone" id="survey-notes-zone" onclick="triggerUpload('survey','notes')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload class notes</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
-          <input type="file" id="conflict-notes-input" class="hidden" multiple onchange="handleUpload('conflict','notes',this)">
-          <ul class="file-list" id="conflict-notes-list"></ul>
-          <div class="empty-msg" id="conflict-notes-empty">No notes uploaded yet.</div>
+          <input type="file" id="survey-notes-input" class="hidden" multiple onchange="handleUpload('survey','notes',this)">
+          <ul class="file-list" id="survey-notes-list"></ul>
+          <div class="empty-msg" id="survey-notes-empty">No notes uploaded yet.</div>
         </div>
-        <div class="sec-content hidden" id="conflict-assign">
+        <div class="sec-content hidden" id="survey-assign">
           <div class="upload-date-row">
             <label>Date <span class="req">*</span></label>
-            <input type="date" id="conflict-assign-date">
+            <input type="date" id="survey-assign-date">
           </div>
-          <div class="upload-zone" id="conflict-assign-zone" onclick="triggerUpload('conflict','assign')">
+          <div class="upload-zone" id="survey-assign-zone" onclick="triggerUpload('survey','assign')">
             <div class="spinner"></div>
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <div style="font-weight:600;margin-top:4px;">Tap to upload assignments</div>
             <div style="font-size:0.75rem;margin-top:4px;opacity:0.7;">PDF, images, docs — stored in cloud</div>
           </div>
-          <input type="file" id="conflict-assign-input" class="hidden" multiple onchange="handleUpload('conflict','assign',this)">
-          <ul class="file-list" id="conflict-assign-list"></ul>
-          <div class="empty-msg" id="conflict-assign-empty">No assignments uploaded yet.</div>
+          <input type="file" id="survey-assign-input" class="hidden" multiple onchange="handleUpload('survey','assign',this)">
+          <ul class="file-list" id="survey-assign-list"></ul>
+          <div class="empty-msg" id="survey-assign-empty">No assignments uploaded yet.</div>
         </div>
       </div>
     </div>
@@ -1293,16 +1368,18 @@
 
   const COURSES = {
     auction:  { key:'auction', name: 'Auction Theory', color: '#58a6ff', days: [1,3], time: '9:20–11:05', prof: 'Prof. Priyadarshi Banerjee' },
-    networks: { key:'networks', name: 'Economic and Social Networks', color: '#a371f7', days: [1,3], time: '11:10–12:55', prof: 'Prof. Anuj Bhowmik' },
+    analysis: { key:'analysis', name: 'Real Analysis (Audit)', color: '#2f81f7', days: [1,3], time: '11:10–12:50', prof: 'Prof. Rudra P Sarkar', audit: true },
+    networks: { key:'networks', name: 'Economic and Social Networks', color: '#a371f7', days: [2,5], time: 'Tue 11:30–12:50 / Fri 11:10–12:50', prof: 'Prof. Anuj Bhowmik' },
     macro:    { key:'macro', name: 'Macroeconomics II', color: '#3fb950', days: [1,2], time: 'Mon 16:05–17:50 / Tue 14:15–16:00', prof: 'Prof. Brati Sankar Chakraborty & Kumarjit Mandal' },
-    conflict: { key:'conflict', name: 'Economics of Conflict', color: '#f85149', days: [2,5], time: '16:05–17:50', prof: 'Prof. Indraneel Dasgupta' }
+    survey:   { key:'survey', name: 'Sample Survey', color: '#f85149', days: [2,5], time: 'Tue 10:15–11:30 / Fri 16:00–18:00', prof: 'Prof. Samarjit Das' }
   };
 
   const FOLDER_MAP = {
     'auction': { 'ref-file': 'auction/refs', 'notes': 'auction/notes', 'assign': 'auction/assign' },
+    'analysis': { 'ref-file': 'analysis/refs', 'notes': 'analysis/notes', 'assign': 'analysis/assign' },
     'networks': { 'ref-file': 'networks/refs', 'notes': 'networks/notes', 'assign': 'networks/assign' },
     'macro': { 'ref-file': 'macro/refs', 'notes': 'macro/notes', 'assign': 'macro/assign' },
-    'conflict': { 'ref-file': 'conflict/refs', 'notes': 'conflict/notes', 'assign': 'conflict/assign' },
+    'survey': { 'ref-file': 'survey/refs', 'notes': 'survey/notes', 'assign': 'survey/assign' },
     'project': { 'ref-file': 'project/refs' }
   };
 
@@ -1324,13 +1401,13 @@
   function switchMain(view) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     event.target.classList.add('active');
-    ['calendar','auction','networks','macro','conflict','project','attendance'].forEach(v => {
+    ['calendar','auction','analysis','networks','macro','survey','project','attendance'].forEach(v => {
       document.getElementById('view-' + v).classList.add('hidden');
     });
     document.getElementById('view-' + view).classList.remove('hidden');
     window.scrollTo({top:0,behavior:'smooth'});
     if (view === 'attendance') renderAttendance();
-    if (['auction','networks','macro','conflict','project'].includes(view)) loadCourseFiles(view);
+    if (['auction','analysis','networks','macro','survey','project'].includes(view)) loadCourseFiles(view);
     if (view === 'project') renderPapers();
   }
   function switchSec(course, sec) {
@@ -1417,21 +1494,24 @@
     if (d < SEM_START || d > SEM_END) return result;
     if (isMidSem(d)) return result;
     if (getHoliday(d)) return result;
+    
     if (dow === 1) {
       result.push({...COURSES.auction, time: '9:20–11:05'});
-      result.push({...COURSES.networks, time: '11:10–12:55'});
+      result.push({...COURSES.analysis, time: '11:10–12:50'});
       result.push({...COURSES.macro, time: '16:05–17:50'});
     }
     if (dow === 2) {
+      result.push({...COURSES.survey, time: '10:15–11:30'});
+      result.push({...COURSES.networks, time: '11:30–12:50'});
       result.push({...COURSES.macro, time: '14:15–16:00'});
-      result.push({...COURSES.conflict, time: '16:05–17:50'});
     }
     if (dow === 3) {
       result.push({...COURSES.auction, time: '9:20–11:05'});
-      result.push({...COURSES.networks, time: '11:10–12:55'});
+      result.push({...COURSES.analysis, time: '11:10–12:50'});
     }
     if (dow === 5) {
-      result.push({...COURSES.conflict, time: '16:05–17:50'});
+      result.push({...COURSES.networks, time: '11:10–12:50'});
+      result.push({...COURSES.survey, time: '16:00–18:00'});
     }
     return result;
   }
@@ -1467,88 +1547,14 @@
     const rem = (7 - (totalCells % 7)) % 7;
     for (let i = 1; i <= rem; i++) { const cell = document.createElement('div'); cell.className = 'cal-cell out'; cell.innerHTML = `<span class="dnum">${i}</span>`; grid.appendChild(cell); }
   }
+  
   function changeMonth(delta) {
     currentMonth += delta;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-  
-  // ===== PROJECT PAPER TRACKER =====
-  const PROJECT_PAPERS_KEY = 'isiProjectPapers';
-
-  function loadPapers() {
-    try { return JSON.parse(localStorage.getItem(PROJECT_PAPERS_KEY) || '[]'); } catch(e) { return []; }
-  }
-  function savePapers(papers) { localStorage.setItem(PROJECT_PAPERS_KEY, JSON.stringify(papers)); }
-
-  function addPaper() {
-    const titleEl = document.getElementById('project-paper-title');
-    const title = titleEl.value.trim();
-    if (!title) { titleEl.focus(); titleEl.style.borderColor = 'var(--accent4)'; setTimeout(()=>titleEl.style.borderColor='',1500); return; }
-
-    const papers = loadPapers();
-    papers.push({ id: Date.now(), title, read: false, doubt: '' });
-    savePapers(papers);
-    titleEl.value = '';
-    renderPapers();
+    renderCalendar();
   }
 
-  function togglePaperRead(id) {
-    const papers = loadPapers();
-    const p = papers.find(x => x.id === id);
-    if (p) { p.read = !p.read; savePapers(papers); renderPapers(); }
-  }
-
-  function updatePaperDoubt(id, value) {
-    const papers = loadPapers();
-    const p = papers.find(x => x.id === id);
-    if (p) { p.doubt = value; savePapers(papers); }
-  }
-
-  function deletePaper(id) {
-    if (!confirm('Remove this paper?')) return;
-    const papers = loadPapers().filter(x => x.id !== id);
-    savePapers(papers);
-    renderPapers();
-  }
-
-  function renderPapers() {
-    const container = document.getElementById('project-paper-list');
-    const empty = document.getElementById('project-paper-empty');
-    const papers = loadPapers();
-    if (!container) return;
-
-    if (papers.length === 0) {
-      container.innerHTML = '';
-      if (empty) empty.style.display = 'block';
-      return;
-    }
-    if (empty) empty.style.display = 'none';
-
-    container.innerHTML = papers.map(p => `
-      <div class="paper-card ${p.read ? 'read' : ''}" data-id="${p.id}">
-        <div class="paper-header">
-          <button class="paper-check ${p.read ? 'checked' : ''}" onclick="togglePaperRead(${p.id})" title="Mark as read"></button>
-          <div class="paper-title">${escapeHtml(p.title)}</div>
-        </div>
-        <div class="paper-meta">
-          <span class="paper-tag ${p.read ? 'read-tag' : ''}">${p.read ? '✅ Read' : '⏳ Unread'}</span>
-        </div>
-        <div class="paper-doubt-label">💬 Doubts / Notes</div>
-        <textarea class="paper-doubt-input" placeholder="Write your doubts, key takeaways, or notes here..." oninput="updatePaperDoubt(${p.id}, this.value)">${escapeHtml(p.doubt)}</textarea>
-        <div class="paper-actions">
-          <button class="paper-btn" onclick="deletePaper(${p.id})">🗑 Remove</button>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  renderCalendar(); document.getElementById('day-detail').style.display = 'none';
-  }
   function showDayDetail(date, classes) {
     const detail = document.getElementById('day-detail');
     document.getElementById('detail-date').textContent = date.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
@@ -1748,6 +1754,9 @@
 
     Object.keys(COURSES).forEach(key => {
       const course = COURSES[key];
+      // Skip generation for Audit Courses
+      if (course.audit) return;
+      
       const dates = generateClassDates(key);
       const rec = data[key] || {};
       let held = 0, present = 0, absent = 0, notMarked = 0;
@@ -1853,7 +1862,7 @@
   }
 
   // Allow Enter key in ref inputs
-  ['auction','networks','macro','conflict','project'].forEach(c => {
+  ['auction','analysis','networks','macro','survey','project'].forEach(c => {
     const urlEl = document.getElementById(`${c}-ref-url`);
     const nameEl = document.getElementById(`${c}-ref-name`);
     if (urlEl) urlEl.addEventListener('keypress', e => { if(e.key==='Enter') addRef(c); });
